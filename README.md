@@ -222,7 +222,6 @@ NextLibrary/
 │   └── Testing/            # Test suites
 ├── Output/
 │   └── nextlibrary.nex     # Compiled library
-├── Reviews/                # Optimization documentation
 └── README.md              # This file
 ```
 
