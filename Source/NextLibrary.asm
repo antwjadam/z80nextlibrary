@@ -8,7 +8,7 @@ StartAddress:   ; Main program entry point
                 
                 ; Initialize display system
                 CALL    InitDisplay
-                CALL    ClearScreen
+                CALL    ScreenReset
                 
                 ; Run the test pack
                 CALL    RunTests
