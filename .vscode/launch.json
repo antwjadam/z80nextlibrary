@@ -1,0 +1,36 @@
+{
+        "version": "0.2.0",
+        "configurations": [
+            {
+                "type": "dezog",
+                "request": "launch",
+                "name": "Z80 Debugger",                
+                "remoteType": "cspect",      
+                "cspect": 
+                {
+                        "hostname": "localhost",
+                        "port": 11000
+                },
+                "zxnext": 
+                {
+                        "baudrate": 230400,
+                        "port": "/dev/tty.usbserial"
+                },
+                "rootFolder": "${fileDirname}",
+                "listFiles": [
+                  {
+                      "path": "${fileDirname}/${fileBasenameNoExtension}.lst",
+                      "useFiles": true,
+                      "asm": "C:\\SpecNext\\sjasmplus\\sjasmplus.exe",
+                      "mainFile": "${fileDirname}/${fileBasenameNoExtension}.asm"
+                  }
+                ],
+                "disassemblerArgs": {
+                    "esxdosRst": true
+                },
+                "load": "..\\Output/${fileBasenameNoExtension}.nex",
+                "skipInterrupt": false,
+                "startAutomatically": false
+            }
+        ]
+    }
