@@ -1,9 +1,7 @@
 
 ; Initialize system
-InitDisplay:        LD      A, 0
-                    LD      (CursorRow), A
-                    LD      (CursorCol), A
-                    LD      A, 0x07         ; White on black
+InitDisplay:        CALL    ResetCursorTopLeft
+                    LD      A, 0x07         ; White on black for base attribute when clearing attribute memory
                     LD      (CurrentAttr), A
                     RET
 
@@ -21,6 +19,12 @@ SetCursor:          LD      A, B
                     LD      A, C
                     LD      (CursorCol), A
 SetCursor_End:      RET
+
+ResetCursorTopLeft: ; Reset cursor position to 0,0 (top left)
+                    XOR     A               ; Clear A to zero
+                    LD      (CursorRow), A
+                    LD      (CursorCol), A
+                    RET
 
 ; Print a character using direct screen memory access
 ; Input: A = character to print

@@ -1,5 +1,5 @@
 
-TestPackTests:      CALL    ClearScreen     ; Clear the screen
+TestPackTests:      CALL    ScreenReset     ; Clear the screen
                     ; Print title at top
                     LD      B, 0            ; Row 0 (top)
                     LD      C, 0            ; Column 0 (left)
