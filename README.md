@@ -1,1 +1,1 @@
-Descriiption coming soon.
+Description coming soon.
