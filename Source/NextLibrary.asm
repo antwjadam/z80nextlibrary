@@ -8,7 +8,10 @@ StartAddress:   ; Main program entry point
                 
                 ; Initialize display system
                 CALL    InitDisplay
-                CALL    ScreenReset
+
+                LD      A, 0x07                            ; Set default attribute (white on black)
+                LD      C, SCREEN_COMPACT                  ; Set performance level to compact (this demo's LDIR, for higher performing screen clearing see ScreenClearing.asm)
+                CALL    Screen_FullReset_Unified
                 
                 ; Run the test pack
                 CALL    RunTests
@@ -19,7 +22,7 @@ StartAddress:   ; Main program entry point
 VariablesEtc:   INCLUDE "Constants.asm"                    ; Include the Constants definitions
                 INCLUDE "Variables.asm"                    ; Include the Variables definitions
 
-DisplayUtils:   INCLUDE "Display/ScreenUtils.asm"          ; Include the Screen Utils routines
+DisplayUtils:   INCLUDE "Display/ScreenClearing.asm"       ; Include the Screen Clearing routines
                 INCLUDE "Display/TextUtils.asm"            ; Include the Text Utils routines
                 INCLUDE "Display/EmbeddedFont.asm"         ; Include the Embedded Font
 

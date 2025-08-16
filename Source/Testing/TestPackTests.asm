@@ -1,5 +1,7 @@
 
-TestPackTests:      CALL    ScreenReset     ; Clear the screen
+TestPackTests:      LD      A, 0x07                            ; Set default attribute (white on black)
+                    LD      C, SCREEN_2PUSH
+                    CALL    Screen_FullReset_Unified
                     ; Print title at top
                     LD      B, 0            ; Row 0 (top)
                     LD      C, 0            ; Column 0 (left)
