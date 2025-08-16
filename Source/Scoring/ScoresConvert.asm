@@ -1,6 +1,3 @@
-; ==============================================================================
-; ScoresConvert.asm - Score and Number Display Routines for ZX Spectrum Next
-; ==============================================================================
 ; This file contains routines for converting 16-bit values to ASCII strings
 ; suitable for display with the PrintString function.
 ;
@@ -10,13 +7,11 @@
 ; Entry points:
 ; - ConvertToDecimal: Main conversion routine with leading zero control
 ;
-; ==============================================================================
-
-; ------------------------------------------------------------------------------
 ; ConvertToDecimal - Simple and working decimal conversion
 ; Entry: HL = value, A = leading zero flag, DE = buffer
 ; Exit: A = length, buffer filled with null-terminated string
-; ------------------------------------------------------------------------------
+;
+; @COMPAT: 48K,128K,+2,+3,NEXT
 ConvertToDecimal:
                     ; Initialize state for this conversion
                     PUSH    AF              ; Save leading zero flag temporarily
@@ -162,11 +157,11 @@ FoundZero:          POP     AF                 ; Restore digit
                     POP     HL                 ; Restore current value
                     RET
 
-; ------------------------------------------------------------------------------
 ; CountBufferLength - Count non-zero bytes in buffer to determine length
 ; Entry: BufferStart points to buffer
 ; Exit: A = length (number of non-zero bytes)
-; ------------------------------------------------------------------------------
+;
+; @COMPAT: 48K,128K,+2,+3,NEXT
 CountBufferLength:  PUSH    HL                 ; Preserve HL
                     LD      HL, (BufferStart)  ; Start of buffer
                     LD      A, 0               ; Length counter
@@ -187,11 +182,11 @@ BufferStart:        DW      0
 HasStarted:         DB      0
 LeadingZeroFlag:    DB      0
 
-; ------------------------------------------------------------------------------
 ; ClearBuffer - Clear 6 bytes of buffer with full register preservation
 ; Entry: DE = buffer pointer
 ; Exit: All registers preserved, buffer cleared to zeros
-; ------------------------------------------------------------------------------
+;
+; @COMPAT: 48K,128K,+2,+3,NEXT
 ClearBuffer:        PUSH    AF              ; Preserve AF
                     PUSH    HL              ; Preserve HL
                     PUSH    DE              ; Preserve DE

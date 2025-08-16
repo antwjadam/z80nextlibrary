@@ -9,32 +9,39 @@ NextLibrary provides world-class mathematical operations, random number generati
 
 There are some Z80N extended opcodes on the Next which could eliminate or speed up some of these routines further. For now, I'm focusing on standard Z80 opcodes to ensure best compatibility for both Spectrum and Next development. "Next only" options using Z80N instructions will be added in the future once the baseline Spectrum routines are complete.
 
-## 📝 **TODO List**
+## Target Platforms
 
-### 🎯 **Platform Compatibility**
-- Create tagging system for routines by ZX Spectrum model compatibility (48K, 128K, +2, +3)
-- Add "Next Only" variants using Z80N extended opcodes for enhanced performance
+The following platforms are targetted, main entry points tagged with @COMPAT: 48K,128K,+2,+3,NEXT - where the list shown is the known compatability of the routine. I also detail below the main differences of the platforms which will give rise to the compatability of the routines.
 
-### 🖥️ **Display & Graphics**
-- Screen copy utilities and in-memory second screen management
-- Extended screen manipulation functions
+### ZX SPECTRUM 48K:
+- CPU: Z80 @ 3.5MHz
+- Memory: 48KB RAM
+- Features: Basic ULA, beeper sound
+- Limitations: No extra RAM banks, no AY sound
 
-### 🎮 **Input Systems**  
-- Joystick input support with multiple controller options
-- Enhanced text input utilities and keyboard handling
+### ZX SPECTRUM 128K:
+- CPU: Z80 @ 3.5MHz  
+- Memory: 128KB RAM (banked)
+- Features: AY-3-8912 sound chip, extra RAM banks
+- New: Memory paging, enhanced sound
 
-### 🏆 **Scoring & Data**
-- Extended scoring system supporting up to 12-digit scores (beyond 65535)
-- Leaderboard and score table management utilities
+### ZX SPECTRUM +2:
+- CPU: Z80 @ 3.5MHz
+- Memory: 128KB RAM (banked) 
+- Features: Built-in tape deck, AY sound
+- Differences: Different ROM, tape interface
 
-### 🔊 **Audio Support**
-- Sound utilities for 48K and later Spectrum models
-- Audio system integration
+### ZX SPECTRUM +3:
+- CPU: Z80 @ 3.5MHz
+- Memory: 128KB RAM (banked)
+- Features: Built-in disk drive, +2A/+3 ROM
+- New: Disk interface, different memory map
 
-### ⚡ **Optimization**
-- Complete T-state optimization pass (e.g., replace JR with JP where beneficial)
-- Z80N instruction integration for Next-specific performance gains
-- Memory usage optimization analysis
+### ZX SPECTRUM NEXT:
+- CPU: Z80N @ 3.5/7/14/28MHz
+- Memory: 1MB+ RAM, advanced banking
+- Features: Enhanced graphics, sprites, DMA
+- New: Z80N extended opcodes, copper, etc.
 
 ## 🚀 **Current Features**
 
@@ -63,6 +70,48 @@ There are some Z80N extended opcodes on the Next which could eliminate or speed 
 ### 🏆 **Scoring System**
 - **BCD Conversion**: Binary to BCD score conversion utilities
 - **Display Integration**: Score rendering and management
+
+## 📝 **TODO List**
+
+### 🖥️ **Display & Graphics**
+- Screen copy utilities and in-memory second screen management
+- Extended screen manipulation functions, e.g. line draw, fill, patterned fill
+
+### 🎮 **Input Systems**  
+- Joystick input support with multiple controller options
+- Enhanced text input utilities and keyboard handling
+
+### 🏆 **Scoring & Data**
+- Extended scoring system supporting up to 12-digit scores (beyond 65535)
+- Leaderboard and score table management utilities
+
+### 🔊 **Audio Support**
+- Beeper sound utilities (tags likely to be @COMPAT: 48K,128K,+2,+3,NEXT)
+- AY sound routines (tags likely to be @COMPAT: 128K,+2,+3,NEXT, @REQUIRES: AY-3-8912)
+
+### 🏦 **Memory Banking**
+- Memory bank switching and loading (tags likely to be @COMPAT: 128K,+2,+3,NEXT, @REQUIRES: Memory banking)
+
+### 💾 **Loading and Saving**
+- Tape routines (tags likely to be @COMPAT: 48K,128K,+2,+3,NEXT)
+- Microdrive routines (tags likely to be @COMPAT: 48K,128K,+2,+3) - likely requires Next to be in a required compatibility mode with microdrive interface attached and active - not sure yet
+- Disk routines (tags likely to be @COMPAT: +3, @REQUIRES: +3 disk interface) - potentially no Next compatibility as very hardware based
+
+### 🚀 **Advanced Next Features**
+*Tagged @COMPAT NEXT as they will be specific to the Next, this list is not exhaustive*
+- Sprites (tags likely to be @COMPAT: NEXT, @REQUIRES: Next sprites)
+- Copper (tags likely to be @COMPAT: NEXT, @REQUIRES: Next copper)  
+- DMA (tags likely to be @COMPAT: NEXT, @REQUIRES: Next DMA)
+- More features... (one thing added at a time)
+- May need tags NEXT1, NEXT2 and NEXT3 to indicate minimum NEXT issue - we will see. I'm hoping not as far as machine code goes
+
+### ⚡ **Optimization**
+- Complete T-state optimization pass (e.g., replace JR with JP where beneficial)
+- Add "Next Only" variants using Z80N extended opcodes for enhanced performance:
+  - Next_FastMemCopy - @COMPAT: NEXT, @Z80N: LDPIRX, LDDX
+  - Next_RegisterAccess - @COMPAT: NEXT, @Z80N: NEXTREG
+  - Next_FastMultiply - @COMPAT: NEXT, @Z80N: MUL DE
+- Memory usage optimization analysis
 
 ## 🎯 **Performance Levels**
 

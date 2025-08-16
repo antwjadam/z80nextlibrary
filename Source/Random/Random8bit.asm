@@ -21,6 +21,8 @@
 ; PERFORMANCE_RANDOM_LFSR             - ~65-95 T-states per call  
 ; PERFORMANCE_RANDOM_XORSHIFT         - ~40-55 T-states per call
 ; PERFORMANCE_RANDOM_MIDDLESQUARE     - ~115-150 T-states per call
+;
+; @COMPAT: 48K,128K,+2,+3,NEXT
 
 Random8_Unified_Seed:               ; Set seed and get first random number
                         PUSH    AF
@@ -72,6 +74,8 @@ MiddleSquareSeed8_ValidSeed:
 ; Input:  A = upper limit INCLUSIVE (0 to A)
 ;         C = algorithm selection (PERFORMANCE_RANDOM_xxx)
 ; Output: A = random number in range 0 to limit inclusive.
+;
+; @COMPAT: 48K,128K,+2,+3,NEXT
 
 Random8_Unified_Next:
                         LD      B, A                            ; Save limit
@@ -84,6 +88,8 @@ Random8_Unified_Next:
                         JP      Z, Random8_Next_MiddleSquare
 
                         ; Fall through to LCG
+;
+; @COMPAT: 48K,128K,+2,+3,NEXT
 Random8_Next_LCG:
                         LD      A, B                            ; Restore limit
                         PUSH    BC                              ; Save registers
@@ -135,6 +141,8 @@ Random8_ReturnRaw:      ; Return raw random value if limit was 255 (covers full 
                         JR      Random8_Done
 
 ; Get next random number using LFSR algorithm
+;
+; @COMPAT: 48K,128K,+2,+3,NEXT
 Random8_Next_LFSR:
                         LD      A, B                            ; Restore limit
 Lfsr8:                  ; Get next LFSR random number
@@ -193,6 +201,8 @@ Lfsr8_ReturnZero:       LD      A, 0                            ; Return 0 for l
 
 
 ; Get next random number using XOR Shift algorithm
+;
+; @COMPAT: 48K,128K,+2,+3,NEXT
 Random8_Next_XORShift:
                         LD      A, B                            ; Restore limit
                         PUSH    BC                              ; Save registers
@@ -254,6 +264,8 @@ XorShift8_ReturnZero:   LD      A, 0                            ; Return 0 for l
                         JR      XorShift8_Done
 
 ; Get next random number using Middle Square algorithm
+;
+; @COMPAT: 48K,128K,+2,+3,NEXT
 Random8_Next_MiddleSquare:
                         LD      A, B                            ; Restore limit
                         PUSH    BC                              ; Save registers

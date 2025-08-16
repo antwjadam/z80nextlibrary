@@ -15,6 +15,8 @@
 ; SCREEN_4PUSH: Sets 8 pixels simultaneously    - Pixel Only ~45,240 T-States, Attribute Only ~5,710 T-States, Full Reset ~50,950 T-States
 ; SCREEN_8PUSH: Sets 16 pixels simultaneously   - Pixel Only ~39,240 T-States, Attribute Only ~4,900 T-States, Full Reset ~44,140 T-States
 ; SCREEN_ALLPUSH: Sets 256 pixels per loop      - Pixel Only ~34,140 T-States, Attribute Only ~4,270 T-States, Full Reset ~38,410 T-States
+;
+; @COMPAT: 48K,128K,+2,+3,NEXT
 
 Screen_FullReset_Unified:   LD      (CurrentAttr), A                ; Set current attribute for text system.
                             LD      A, C                            ; Get Performance Level
@@ -31,9 +33,13 @@ Screen_FullReset_Unified:   LD      (CurrentAttr), A                ; Set curren
                             ; fall through to SCREEN_COMPACT
 
 ; Clear the entire screen using direct memory access
+;
+; @COMPAT: 48K,128K,+2,+3,NEXT
 ScreenFullReset:            CALL    ClearFullPixels                 ; Clear pixel memory
                             JP      SetAttributes                   ; Set attribute memory
 
+;
+; @COMPAT: 48K,128K,+2,+3,NEXT
 Screen_ClearPixel_Unified:  LD      (CurrentAttr), A                ; Set current attribute for text system.
                             LD      A, C                            ; Get Performance Level
                             CP      SCREEN_1PUSH
@@ -48,6 +54,8 @@ Screen_ClearPixel_Unified:  LD      (CurrentAttr), A                ; Set curren
                             JP      Z, ScreenPixelsAllPush
                             ; fall through to SCREEN_COMPACT
 
+;
+; @COMPAT: 48K,128K,+2,+3,NEXT
 ClearFullPixels:            ; Clear pixel memory (0x4000-0x57FF)
                             LD      HL, SCREEN_PIXEL_BASE
                             LD      DE, SCREEN_PIXEL_BASE + 1
@@ -56,6 +64,8 @@ ClearFullPixels:            ; Clear pixel memory (0x4000-0x57FF)
                             LDIR                                    ; Clear rest
                             RET
 
+;
+; @COMPAT: 48K,128K,+2,+3,NEXT
 Screen_ClearAttr_Unified:   LD      (CurrentAttr), A                ; Set current attribute for text system.
                             LD      A, C                            ; Get Performance Level
                             CP      SCREEN_1PUSH
@@ -70,6 +80,8 @@ Screen_ClearAttr_Unified:   LD      (CurrentAttr), A                ; Set curren
                             JP      Z, ScreenAttrsAllPush
                             ; fall through to SCREEN_COMPACT
 
+;
+; @COMPAT: 48K,128K,+2,+3,NEXT
 SetAttributes:              ; Set attribute memory (0x5800-0x5AFF)
                             LD      A, (CurrentAttr)                ; Get saved attribute to set to.
                             LD      HL, SCREEN_ATTR_BASE
@@ -80,8 +92,12 @@ SetAttributes:              ; Set attribute memory (0x5800-0x5AFF)
                             RET
 
 ; by temporary move stack to screen area, we can push two bytes per instruction instead of just one. We have to save and then restore the current stack pointer before returning.
+;
+; @COMPAT: 48K,128K,+2,+3,NEXT
 ScreenReset1Push:           CALL    ScreenPixels1Push
                             JP      ScreenAttrs1Push
+;
+; @COMPAT: 48K,128K,+2,+3,NEXT
 ScreenPixels1Push:          LD      (ScreenStackPointer), SP        ; Save current stack pointer
                             LD      DE, 0                           ; DE = 0x0000 (clear value)
                             LD      SP, SCREEN_PIXEL_BASE + 6144    ; Point to end of pixel memory
@@ -94,6 +110,8 @@ ClearPixel_1Push_Inner:     PUSH    DE                              ; Clear 2 by
                             JP      NZ, ClearPixel_1Push_Loop       ; (12/7 T-states)
                             LD      SP, (ScreenStackPointer)        ; Restore stack pointer
                             RET
+;
+; @COMPAT: 48K,128K,+2,+3,NEXT
 ScreenAttrs1Push:           LD      (ScreenStackPointer), SP        ; Save current stack pointer
                             LD      A, (CurrentAttr)                ; Load attribute into A
                             LD      D, A                            ; D = attribute
@@ -103,8 +121,12 @@ ScreenAttrs1Push:           LD      (ScreenStackPointer), SP        ; Save curre
                             JP      ClearPixel_1Push_Loop
 
 ; by increasing the pushes by a factor of 2, the code size increases slighlty but the looping halves again.
+;
+; @COMPAT: 48K,128K,+2,+3,NEXT
 ScreenReset2Push:           CALL    ScreenPixels2Push
                             JP      ScreenAttrs2Push
+;
+; @COMPAT: 48K,128K,+2,+3,NEXT
 ScreenPixels2Push:          LD      (ScreenStackPointer), SP        ; Save current stack pointer
                             LD      DE, 0                           ; DE = 0x0000 (clear value)
                             LD      SP, SCREEN_PIXEL_BASE + 6144    ; Point to end of pixel memory
@@ -118,6 +140,8 @@ ClearPixel_2Push_Inner:     PUSH    DE                              ; Clear 2 by
                             JP      NZ, ClearPixel_2Push_Loop       ; (12/7 T-states)
                             LD      SP, (ScreenStackPointer)        ; Restore stack pointer
                             RET
+;
+; @COMPAT: 48K,128K,+2,+3,NEXT
 ScreenAttrs2Push:           LD      (ScreenStackPointer), SP        ; Save current stack pointer
                             LD      A, (CurrentAttr)                ; Load attribute into A
                             LD      D, A                            ; D = attribute
@@ -127,8 +151,12 @@ ScreenAttrs2Push:           LD      (ScreenStackPointer), SP        ; Save curre
                             JP      ClearPixel_2Push_Loop
 
 ; x 2 pushes again
+;
+; @COMPAT: 48K,128K,+2,+3,NEXT
 ScreenReset4Push:           CALL    ScreenPixels4Push
                             JP      ScreenAttrs4Push
+;
+; @COMPAT: 48K,128K,+2,+3,NEXT
 ScreenPixels4Push:          LD      (ScreenStackPointer), SP        ; Save current stack pointer
                             LD      DE, 0                           ; DE = 0x0000 (clear value)
                             LD      SP, SCREEN_PIXEL_BASE + 6144    ; Point to end of pixel memory
@@ -144,6 +172,8 @@ ClearPixel_4Push_Inner:     PUSH    DE                              ; Clear 2 by
                             JP      NZ, ClearPixel_4Push_Loop       ; (12/7 T-states)
                             LD      SP, (ScreenStackPointer)        ; Restore stack pointer
                             RET
+;
+; @COMPAT: 48K,128K,+2,+3,NEXT
 ScreenAttrs4Push:           LD      (ScreenStackPointer), SP        ; Save current stack pointer
                             LD      A, (CurrentAttr)                ; Load attribute into A
                             LD      D, A                            ; D = attribute
@@ -153,8 +183,12 @@ ScreenAttrs4Push:           LD      (ScreenStackPointer), SP        ; Save curre
                             JP      ClearPixel_4Push_Loop
 
 ; x 2 pushes again
+;
+; @COMPAT: 48K,128K,+2,+3,NEXT
 ScreenReset8Push:           CALL    ScreenPixels8Push
                             JP      ScreenAttrs8Push
+;
+; @COMPAT: 48K,128K,+2,+3,NEXT
 ScreenPixels8Push:          LD      (ScreenStackPointer), SP        ; Save current stack pointer
                             LD      DE, 0                           ; DE = 0x0000 (clear value)
                             LD      SP, SCREEN_PIXEL_BASE + 6144    ; Point to end of pixel memory
@@ -174,6 +208,8 @@ ClearPixel_8Push_Inner:     PUSH    DE                              ; Clear 2 by
                             JP      NZ, ClearPixel_8Push_Loop       ; (12/7 T-states)
                             LD      SP, (ScreenStackPointer)        ; Restore stack pointer
                             RET
+;
+; @COMPAT: 48K,128K,+2,+3,NEXT
 ScreenAttrs8Push:           LD      (ScreenStackPointer), SP        ; Save current stack pointer
                             LD      A, (CurrentAttr)                ; Load attribute into A
                             LD      D, A                            ; D = attribute
@@ -183,8 +219,12 @@ ScreenAttrs8Push:           LD      (ScreenStackPointer), SP        ; Save curre
                             JP      ClearPixel_8Push_Loop
 
 ; x 2 pushes again
+;
+; @COMPAT: 48K,128K,+2,+3,NEXT
 ScreenResetAllPush:         CALL    ScreenPixelsAllPush
                             JP      ScreenAttrsAllPush
+;
+; @COMPAT: 48K,128K,+2,+3,NEXT
 ScreenPixelsAllPush:        LD      (ScreenStackPointer), SP        ; Save current stack pointer
                             LD      DE, 0                           ; DE = 0x0000 (clear value)
                             LD      SP, SCREEN_PIXEL_BASE + 6144    ; Point to end of pixel memory
@@ -321,6 +361,8 @@ ClearPixel_AllPush_Loop:    PUSH    DE                              ; push 001 -
                             JP      NZ, ClearPixel_AllPush_Loop     ; (12/7 T-states)
                             LD      SP, (ScreenStackPointer)        ; Restore stack pointer
                             RET
+;
+; @COMPAT: 48K,128K,+2,+3,NEXT
 ScreenAttrsAllPush:         LD      (ScreenStackPointer), SP        ; Save current stack pointer
                             LD      A, (CurrentAttr)                ; Load attribute into A
                             LD      D, A                            ; D = attribute

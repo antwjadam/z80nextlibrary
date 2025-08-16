@@ -1,5 +1,7 @@
 ; Embedded font data - complete 8x8 font for all printable ASCII characters (32-126)
 ; Each character is 8 bytes representing 8 rows of 8 pixels
+;
+; @COMPAT: 48K,128K,+2,+3,NEXT
 EmbeddedFont:
                     ; ASCII 32 (Space)
                     DB      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00

@@ -10,6 +10,8 @@
 ; PERFORMANCE_COMPACT:  ~45-1300 T-states (variable - repeated subtraction, worst case 65535÷1)
 ; PERFORMANCE_BALANCED: ~220-280 T-states (fixed - binary long division, consistent 16-bit processing)  
 ; PERFORMANCE_MAXIMUM:  ~180-420 T-states (variable - optimized binary division with early exits)
+;
+; @COMPAT: 48K,128K,+2,+3,NEXT
 
 Divide16x8_Unified:         LD      A, C                        ; Get Performance Level
                             CP      PERFORMANCE_MAXIMUM
@@ -17,6 +19,8 @@ Divide16x8_Unified:         LD      A, C                        ; Get Performanc
                             CP      PERFORMANCE_BALANCED
                             JR      Z, Divide16x8_Balanced
                             ; fall through to COMPACT
+;
+; @COMPAT: 48K,128K,+2,+3,NEXT
 Divide16x8_Compact:         ; Check for zero divisor
                             LD      A, B
                             OR      A
@@ -58,6 +62,8 @@ D16x8_Compact_Done:         ; HL = remainder, DE = quotient
                             RET
 
 ; Balanced performance, relatively predictable T state range.
+;
+; @COMPAT: 48K,128K,+2,+3,NEXT
 Divide16x8_Balanced:        ; Check for zero divisor
                             LD      A, B
                             OR      A
@@ -91,6 +97,8 @@ D16x8_Small:                ; dividend < divisor, so quotient = 0, remainder = d
                             RET
 
 ; Maximum performance in most cases. Personally, I would use balanced in games to avoid t state stuttering
+;
+; @COMPAT: 48K,128K,+2,+3,NEXT
 Divide16x8_Maximum:         ; Check for zero divisor
                             LD      A, B
                             OR      A

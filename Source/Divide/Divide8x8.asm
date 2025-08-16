@@ -10,6 +10,8 @@
 ; PERFORMANCE_COMPACT:  ~25-1950 T-states (variable - worst case 255÷1, best case 0÷n or dividend<divisor)
 ; PERFORMANCE_BALANCED: ~30-1975 T-states (variable - same algorithm as COMPACT but different register usage) 
 ; PERFORMANCE_MAXIMUM:  ~40-1000 T-states (variable - optimized with 2x acceleration, ~50% fewer iterations)
+;
+; @COMPAT: 48K,128K,+2,+3,NEXT
 
 Divide8x8_Unified:      LD      D, A                    ; Save dividend in D so we can check performance levels
                         LD      A, C                    ; Get Performance Level
@@ -18,6 +20,8 @@ Divide8x8_Unified:      LD      D, A                    ; Save dividend in D so 
                         CP      PERFORMANCE_BALANCED
                         JP      Z, Divide8x8_Balanced
                         ; fall through to COMPACT
+;
+; @COMPAT: 48K,128K,+2,+3,NEXT
 Divide8x8_Compact:      LD      A, B                    ; Load divisor into A, check for divide by zero.
                         OR      A                       ; Check if divisor is zero
                         JR      Z, D8x8_Infinity        ; If divide by zero return infinity
@@ -44,6 +48,8 @@ D8x8_Infinity:          LD      A, 255                  ; quotient = 255
                         RET
 
 ; Uses simple repeated subtraction for reliability
+;
+; @COMPAT: 48K,128K,+2,+3,NEXT
 Divide8x8_Balanced:     LD      A, B                    ; Load divisor into A
                         OR      A                       ; Check if divisor is zero
                         JR      Z, D8x8_Infinity        ; If divide by zero return infinity
@@ -69,6 +75,8 @@ Div8x8Smaller:          LD      B, A                    ; Remainder = dividend
                         RET
 
 ; Fast 8-bit ÷ 8-bit division - Optimized repeated subtraction with larger steps
+;
+; @COMPAT: 48K,128K,+2,+3,NEXT
 Divide8x8_Maximum:      LD      A, B                    ; Load divisor into A
                         OR      A                       ; Check if divisor is zero
                         JR      Z, D8x8_Infinity        ; If divide by zero return infinity

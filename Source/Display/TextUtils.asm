@@ -1,3 +1,5 @@
+;
+; @COMPAT: 48K,128K,+2,+3,NEXT
 
 ; Initialize system
 InitDisplay:        CALL    ResetCursorTopLeft
