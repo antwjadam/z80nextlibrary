@@ -1,3 +1,5 @@
+;
+; @COMPAT: 48K,128K,+2,+3,NEXT
 ScanAllKeys:        ; scans all keys returning NZ set if a key is pressed, else returns Z set
                     LD      B, 0xFE         ; First keyboard row
                     CALL    ScanKeyPort
@@ -32,6 +34,8 @@ ScanAllKeys:        ; scans all keys returning NZ set if a key is pressed, else 
                     RET
 
 ; scan key port set up in B, SET NZ if a key is pressed on that key port else sets Z
+;
+; @COMPAT: 48K,128K,+2,+3,NEXT
 ScanKeyPort:        LD      C, 0xFE         ; Keyboard port
                     IN      A, (C)
                     AND     0x1F

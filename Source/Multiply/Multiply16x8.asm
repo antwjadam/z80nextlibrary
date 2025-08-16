@@ -10,6 +10,8 @@
 ; PERFORMANCE_COMPACT:  ~45-380 T-states (variable, depends on multiplier value)
 ; PERFORMANCE_BALANCED: ~180 T-states (fixed, 8 iterations with 16-bit arithmetic)  
 ; PERFORMANCE_MAXIMUM:  ~140 T-states (fixed, unrolled loop optimized for speed)
+;
+; @COMPAT: 48K,128K,+2,+3,NEXT
 
 Multiply16x8_Unified:   LD      A, C                    ; Get Performance Level
                         CP      PERFORMANCE_MAXIMUM
@@ -17,6 +19,8 @@ Multiply16x8_Unified:   LD      A, C                    ; Get Performance Level
                         CP      PERFORMANCE_BALANCED
                         JP      Z, Multiply16x8_Balanced
                         ; fall through to COMPACT
+;
+; @COMPAT: 48K,128K,+2,+3,NEXT
 Multiply16x8_Compact:   ; Handle zero multiplier quickly
                         LD      A, B
                         OR      A
@@ -46,6 +50,8 @@ M16x8_Compact_Zero:     LD      HL, 0
                         RET
 
 ; BALANCED performance - fixed timing shift-and-add
+;
+; @COMPAT: 48K,128K,+2,+3,NEXT
 Multiply16x8_Balanced:  ; Check for zero multiplier quickly
                         LD      A, B
                         OR      A
@@ -76,6 +82,8 @@ M16x8_Balanced_Zero:    LD      HL, 0
                         RET
 
 ; MAXIMUM performance - unrolled for speed
+;
+; @COMPAT: 48K,128K,+2,+3,NEXT
 Multiply16x8_Maximum:   ; Check for zero multiplier quickly
                         LD      A, B
                         OR      A
