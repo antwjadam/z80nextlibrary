@@ -1,13 +1,25 @@
-# NextLibrary - Z80 Assembly Mathematics & Utilities Library
+# NextLibrary - Z80 Assembly Utilities Library for Spectrum and Next
 
 [![Platform: ZX Spectrum Next](https://img.shields.io/badge/Platform-ZX%20Spectrum%20Next-blue.svg)](https://www.specnext.com/)
 [![Assembly: Z80](https://img.shields.io/badge/Assembly-Z80-green.svg)](https://en.wikipedia.org/wiki/Zilog_Z80)
 
-**A high-performance, unified mathematics and utility library for Z80 assembly development on the ZX Spectrum Next platform.**
+**A high-performance, unified utility library for Z80 assembly development on the ZX Spectrum and ZX Spectrum Next platforms.**
 
 NextLibrary provides world-class mathematical operations, random number generation, and utility functions optimized for retro game development and system programming.
 
-## 🚀 Features
+There are some Z80N extended op codes on the Next which could eliminate / speed up some of these routines further, but for now at least I'm trying to avoid them using just standard Z80 op codes to get best compatibility for both spectrum and next dev, I will probably add "Next only" options in the near future, once I have my baselined all my old spectrum routines into this library.
+
+## TODO:
+ - Think about how to tag routines as ZX Spectrum & model (48K, 128K, +2, +3) compatible and Next only when using Z80N opcodes.
+ - Screen Copy + In Memory second screen utilities,
+ - Joystick input and various options for text input
+ - Scoring greater than 65535 - maybe allow up to 12 digit scores, not sure yet.
+ - Leaderboard / Score tables.
+ - Ssound options for 48K and later spectrum models.
+ - General code optimization pass at this point, e.g. JR NZ uses 12 t states but JP NZ only uses 10, so I can save a few more here and there using standard Z80 opcodes yet.
+ - I will look at Z80N and create "Next Only" choices too - but lots to do before we get here :)
+
+## 🚀 Features Done so Far
 
 ### 📊 **Mathematical Operations**
 - **8×8 Unsigned Multiplication**: Three performance levels (35-160 T-states)
