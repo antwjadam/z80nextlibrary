@@ -14,3 +14,11 @@ PERFORMANCE_RANDOM_LCG          EQU     0       ; Fast, good distribution, full 
 PERFORMANCE_RANDOM_LFSR         EQU     1       ; Best quality, maximum period, moderate speed
 PERFORMANCE_RANDOM_XORSHIFT     EQU     2       ; Fastest execution, very good quality, likley best for games.
 PERFORMANCE_RANDOM_MIDDLESQUARE EQU     3       ; Educational software use only.
+
+; Screen clear and copy performance choices
+SCREEN_COMPACT                  EQU     0       ; Standard LDIR operation, slowest but most compact code.
+SCREEN_1PUSH                    EQU     1       ; Sets 2 pixels simultaneously, faster but more complex code.
+SCREEN_2PUSH                    EQU     2       ; Sets 4 pixels simultaneously, even faster but slightly larger code overhead.
+SCREEN_4PUSH                    EQU     3       ; Sets 8 pixels simultaneously, even faster but slightly larger code overhead.
+SCREEN_8PUSH                    EQU     4       ; Sets 16 pixels simultaneously, fastest but largest code overhead with loops.
+SCREEN_ALLPUSH                  EQU     5       ; Sets all 2,048 pixels (256 bytes) simultaneously, maximum speed but very large code overhead.

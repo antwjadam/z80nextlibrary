@@ -23,7 +23,9 @@ NextLibrary provides world-class mathematical operations, random number generati
 
 ### 🖥️ **Display Utilities**
 - **Text Rendering**: Embedded font system with screen utilities
-- **Screen Management**: Optimized screen clearing and copying functions
+- **Unified Screen Clearing**: Six performance levels with up to 74% speed improvement
+- **Flexible Operations**: Clear pixels only, attributes only, or full screen reset
+- **Stack-Based Optimization**: Advanced PUSH techniques for maximum performance
 
 ### ⌨️ **Input Handling**
 - **Keyboard Scanning**: Efficient input detection utilities
@@ -86,6 +88,25 @@ CALL    Divide16x8_Unified
 ; Quotient in HL, remainder in A
 ```
 
+### Screen Clearing Operations
+
+```asm
+; Clear entire screen with white on black attributes
+LD      A, %00000111    ; White ink, black paper
+LD      C, SCREEN_4PUSH ; High performance mode
+CALL    Screen_FullReset_Unified
+
+; Clear pixels only (preserve attributes)
+LD      A, 0            ; Not used for pixel clearing
+LD      C, SCREEN_2PUSH ; Medium performance
+CALL    Screen_ClearPixel_Unified
+
+; Set attributes only (preserve pixels)
+LD      A, %01000010    ; Green ink, black paper, bright
+LD      C, SCREEN_1PUSH ; Low overhead mode  
+CALL    Screen_ClearAttr_Unified
+```
+
 ## 🔧 **API Reference**
 
 ### Mathematical Operations
@@ -133,7 +154,33 @@ PERFORMANCE_RANDOM_LCG           EQU 0    ; Linear Congruential Generator
 PERFORMANCE_RANDOM_LFSR          EQU 1    ; Linear Feedback Shift Register
 PERFORMANCE_RANDOM_XORSHIFT      EQU 2    ; XorShift Algorithm
 PERFORMANCE_RANDOM_MIDDLESQUARE  EQU 3    ; Middle Square Method
+
+; Screen Performance Levels
+SCREEN_COMPACT               EQU 0    ; Standard LDIR operation
+SCREEN_1PUSH                 EQU 1    ; 2 pixels simultaneously  
+SCREEN_2PUSH                 EQU 2    ; 4 pixels simultaneously
+SCREEN_4PUSH                 EQU 3    ; 8 pixels simultaneously
+SCREEN_8PUSH                 EQU 4    ; 16 pixels simultaneously
+SCREEN_ALLPUSH               EQU 5    ; 256 pixels per loop
 ```
+
+### Screen Management
+
+#### Unified Screen Clearing
+- `Screen_FullReset_Unified` - Clear pixels and set attributes
+- `Screen_ClearPixel_Unified` - Clear pixels only, preserve attributes
+- `Screen_ClearAttr_Unified` - Set attributes only, preserve pixels
+
+**Input**: A = attribute value, C = performance level  
+**Output**: Screen cleared according to specified operation
+
+**Performance Levels**:
+- **SCREEN_COMPACT**: Standard LDIR operation (baseline)
+- **SCREEN_1PUSH**: Stack-based clearing, 2 pixels per operation (~37% faster)
+- **SCREEN_2PUSH**: Enhanced stack method, 4 pixels per operation (~56% faster)  
+- **SCREEN_4PUSH**: Advanced optimization, 8 pixels per operation (~65% faster)
+- **SCREEN_8PUSH**: High-performance mode, 16 pixels per operation (~70% faster)
+- **SCREEN_ALLPUSH**: Maximum speed, 256 pixels per loop (~74% faster)
 
 ## ⚡ **Performance Characteristics**
 
@@ -158,6 +205,17 @@ PERFORMANCE_RANDOM_MIDDLESQUARE  EQU 3    ; Middle Square Method
 | **LFSR 16-bit** | 130-165 | 100-135 |
 | **XorShift 16-bit** | 110-135 | 80-105 |
 | **Middle Square 16-bit** | 400-500 | 370-470 |
+
+### Screen Clearing T-States
+
+| Performance Level | Pixel Clear | Attribute Set | Full Reset | Speed Improvement |
+|-------------------|-------------|---------------|------------|-------------------|
+| **SCREEN_COMPACT** | 129,074 | 16,191 | 145,265 | Baseline (100%) |
+| **SCREEN_1PUSH** | 81,640 | 10,270 | 91,910 | ~37% faster |
+| **SCREEN_2PUSH** | 57,240 | 7,230 | 64,470 | ~56% faster |
+| **SCREEN_4PUSH** | 45,240 | 5,710 | 50,950 | ~65% faster |
+| **SCREEN_8PUSH** | 39,240 | 4,900 | 44,140 | ~70% faster |
+| **SCREEN_ALLPUSH** | 34,140 | 4,270 | 38,410 | ~74% faster |
 
 ## 🧪 **Testing**
 

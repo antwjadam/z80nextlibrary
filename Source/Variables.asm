@@ -2,7 +2,7 @@
 StackSpace:                 DS      256             ; 256 bytes for stack, add more space if a bigger stack area is needed
 StackTop:                   DS      2               ; Storage for stack top pointer
 OriginalStack:              DS      2               ; Storage for original stack pointer
-
+ScreenStackPointer:         DS      2               ; Storage for screen clear/copy routines stack pointer saving
 
 ; Current cursor position (global text variables)
 CursorRow:                  DB      0               ; Current row (0-23)
