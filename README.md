@@ -7,19 +7,36 @@
 
 NextLibrary provides world-class mathematical operations, random number generation, and utility functions optimized for retro game development and system programming.
 
-There are some Z80N extended op codes on the Next which could eliminate / speed up some of these routines further, but for now at least I'm trying to avoid them using just standard Z80 op codes to get best compatibility for both spectrum and next dev, I will probably add "Next only" options in the near future, once I have my baselined all my old spectrum routines into this library.
+There are some Z80N extended opcodes on the Next which could eliminate or speed up some of these routines further. For now, I'm focusing on standard Z80 opcodes to ensure best compatibility for both Spectrum and Next development. "Next only" options using Z80N instructions will be added in the future once the baseline Spectrum routines are complete.
 
-## TODO:
- - Think about how to tag routines as ZX Spectrum & model (48K, 128K, +2, +3) compatible and Next only when using Z80N opcodes.
- - Screen Copy + In Memory second screen utilities,
- - Joystick input and various options for text input
- - Scoring greater than 65535 - maybe allow up to 12 digit scores, not sure yet.
- - Leaderboard / Score tables.
- - Ssound options for 48K and later spectrum models.
- - General code optimization pass at this point, e.g. JR NZ uses 12 t states but JP NZ only uses 10, so I can save a few more here and there using standard Z80 opcodes yet.
- - I will look at Z80N and create "Next Only" choices too - but lots to do before we get here :)
+## 📝 **TODO List**
 
-## 🚀 Features Done so Far
+### 🎯 **Platform Compatibility**
+- Create tagging system for routines by ZX Spectrum model compatibility (48K, 128K, +2, +3)
+- Add "Next Only" variants using Z80N extended opcodes for enhanced performance
+
+### 🖥️ **Display & Graphics**
+- Screen copy utilities and in-memory second screen management
+- Extended screen manipulation functions
+
+### 🎮 **Input Systems**  
+- Joystick input support with multiple controller options
+- Enhanced text input utilities and keyboard handling
+
+### 🏆 **Scoring & Data**
+- Extended scoring system supporting up to 12-digit scores (beyond 65535)
+- Leaderboard and score table management utilities
+
+### 🔊 **Audio Support**
+- Sound utilities for 48K and later Spectrum models
+- Audio system integration
+
+### ⚡ **Optimization**
+- Complete T-state optimization pass (e.g., replace JR with JP where beneficial)
+- Z80N instruction integration for Next-specific performance gains
+- Memory usage optimization analysis
+
+## 🚀 **Current Features**
 
 ### 📊 **Mathematical Operations**
 - **8×8 Unsigned Multiplication**: Three performance levels (35-160 T-states)
