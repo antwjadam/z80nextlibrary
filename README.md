@@ -3,7 +3,7 @@
 [![Platform: ZX Spectrum Next](https://img.shields.io/badge/Platform-ZX%20Spectrum%20Next-blue.svg)](https://www.specnext.com/)
 [![Assembly: Z80](https://img.shields.io/badge/Assembly-Z80-green.svg)](https://en.wikipedia.org/wiki/Zilog_Z80)
 
-**A high-performance, unified utility library for Z80 assembly development on the ZX Spectrum and ZX Spectrum Next platforms.**
+**A high-performance, utility library for Z80 assembly development on the ZX Spectrum and ZX Spectrum Next platforms. The choice is yours, you can use device independent routines or limit yourself to platform specific functionality.**
 
 NextLibrary provides world-class mathematical operations, random number generation, and utility functions optimized for retro game development and system programming. It offers hardware independent routines that work on both Spectrum and Spectrum Next hardware and optimised Next only versions making use of Z80N Next only extended op code.
 
@@ -11,7 +11,7 @@ As I extend this library over time (see the TODO list), I will first share the d
 
 ## Target Platforms
 
-The following platforms are targetted, main entry points tagged with @COMPAT: 48K,128K,+2,+3,NEXT - where the list shown is the known compatability of the routine. I also detail below the main differences of the platforms which will give rise to the compatability of the routines. This means NEXT only routines will be tagged with just @COMPAT: NEXT, and if Z80N op codes are present, then @Z80N: MUL DE, ... will be documented as to which extended op codes are being used.
+The following platforms are targetted. The main entry points and individual functionality are tagged with @COMPAT: 48K,128K,+2,+3,NEXT - where the list shown is the known compatability of the routine. I also detail below the main differences of the platforms which will give rise to the compatability of the routines. This means NEXT only routines will be tagged with just @COMPAT: NEXT, and if Z80N op codes are present, then @Z80N: MUL DE, ... will be documented as to which extended op codes are being used.
 
 ### ZX SPECTRUM 48K:
 - CPU: Z80 @ 3.5MHz
