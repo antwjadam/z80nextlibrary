@@ -35,3 +35,6 @@
                 INCLUDE "TestCase035.asm"  ; Multiply 16x8 - PERFORMANCE_MAXIMUM - Large Result Test
                 INCLUDE "TestCase036.asm"  ; Divide 8x8 - PERFORMANCE_COMPACT- Unified Refactor
                 INCLUDE "TestCase037.asm"  ; Divide 16x8 - PERFORMANCE_COMPACT - Unified Refactor
+                INCLUDE "TestCase038.asm"  ; Multiply 8x8 - PERFORMANCE_NEXT_COMPACT - NEXT only, using Z80N op codes
+                INCLUDE "TestCase039.asm"  ; Multiply 8x8 - PERFORMANCE_NEXT_BALANCED - NEXT only, using Z80N op codes
+                INCLUDE "TestCase040.asm"  ; Multiply 8x8 - PERFORMANCE_NEXT_MAXIMUM - NEXT only, using Z80N op codes

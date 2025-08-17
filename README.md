@@ -5,13 +5,13 @@
 
 **A high-performance, unified utility library for Z80 assembly development on the ZX Spectrum and ZX Spectrum Next platforms.**
 
-NextLibrary provides world-class mathematical operations, random number generation, and utility functions optimized for retro game development and system programming.
+NextLibrary provides world-class mathematical operations, random number generation, and utility functions optimized for retro game development and system programming. It offers hardware independent routines that work on both Spectrum and Spectrum Next hardware and optimised Next only versions making use of Z80N Next only extended op code.
 
-There are some Z80N extended opcodes on the Next which could eliminate or speed up some of these routines further. For now, I'm focusing on standard Z80 opcodes to ensure best compatibility for both Spectrum and Next development. "Next only" options using Z80N instructions will be added in the future once the baseline Spectrum routines are complete.
+As I extend this library over time (see the TODO list), I will first share the device independent routines and then will on a subsequent push will add the Z80N optimised routines.
 
 ## Target Platforms
 
-The following platforms are targetted, main entry points tagged with @COMPAT: 48K,128K,+2,+3,NEXT - where the list shown is the known compatability of the routine. I also detail below the main differences of the platforms which will give rise to the compatability of the routines.
+The following platforms are targetted, main entry points tagged with @COMPAT: 48K,128K,+2,+3,NEXT - where the list shown is the known compatability of the routine. I also detail below the main differences of the platforms which will give rise to the compatability of the routines. This means NEXT only routines will be tagged with just @COMPAT: NEXT, and if Z80N op codes are present, then @Z80N: MUL DE, ... will be documented as to which extended op codes are being used.
 
 ### ZX SPECTRUM 48K:
 - CPU: Z80 @ 3.5MHz
@@ -46,7 +46,9 @@ The following platforms are targetted, main entry points tagged with @COMPAT: 48
 ## 🚀 **Current Features**
 
 ### 📊 **Mathematical Operations**
-- **8×8 Unsigned Multiplication**: Three performance levels (35-160 T-states)
+- **8×8 Unsigned Multiplication**: Six performance levels (10-160 T-states)
+  - Standard Z80: COMPACT, BALANCED, MAXIMUM (35-160 T-states)
+  - Next Z80N: NEXT_COMPACT, NEXT_BALANCED, NEXT_MAXIMUM (10-29 T-states)
 - **16×8 Unsigned Multiplication**: Optimized for 16-bit arithmetic (45-380 T-states)
 - **8÷8 Unsigned Division**: Variable timing division algorithms (25-1975 T-states)
 - **16÷8 Unsigned Division**: High-precision 16-bit division (45-1300 T-states)
@@ -122,6 +124,9 @@ NextLibrary uses a unified performance system across all mathematical operations
 | **PERFORMANCE_COMPACT** | Variable timing, minimal code size | Memory-constrained applications |
 | **PERFORMANCE_BALANCED** | Fixed timing, predictable performance | Real-time applications, games |
 | **PERFORMANCE_MAXIMUM** | Optimized for speed, larger code size | Performance-critical operations |
+| **PERFORMANCE_NEXT_COMPACT** | Z80N MUL instruction, fastest code | Next-only, maximum speed |
+| **PERFORMANCE_NEXT_BALANCED** | Z80N MUL with overflow checking | Next-only, speed + validation |
+| **PERFORMANCE_NEXT_MAXIMUM** | Z80N MUL with special case handling | Next-only, optimized edge cases |
 
 ## 📋 **Quick Start**
 
@@ -131,12 +136,19 @@ NextLibrary uses a unified performance system across all mathematical operations
 ; Include the NextLibrary
 INCLUDE "NextLibrary.asm"
 
-; 8×8 Multiplication Example
+; 8×8 Multiplication Example (Standard Z80)
 LD      A, 25           ; Multiplicand
 LD      B, 12           ; Multiplier  
 LD      C, PERFORMANCE_BALANCED
 CALL    Multiply8x8_Unified
 ; Result in HL = 300
+
+; 8×8 Multiplication Example (Next Z80N - Ultra Fast!)
+LD      A, 25           ; Multiplicand
+LD      B, 12           ; Multiplier
+LD      C, PERFORMANCE_NEXT_COMPACT   ; Uses Z80N MUL instruction
+CALL    Multiply8x8_Unified
+; Result in HL = 300 (85% faster!)
 
 ; Random Number Generation
 LD      A, 123          ; Seed value
@@ -147,6 +159,21 @@ LD      C, PERFORMANCE_RANDOM_LCG
 CALL    Random8_Unified
 ; Random value in A
 ```
+
+## ⚡ **Z80N Performance Comparison**
+
+### 8×8 Multiplication Performance
+
+| Performance Level | T-States | Platform | Description |
+|------------------|----------|----------|-------------|
+| **PERFORMANCE_COMPACT** | 35-75 | All | Variable timing, compact code |
+| **PERFORMANCE_BALANCED** | ~160 | All | Fixed timing, predictable |
+| **PERFORMANCE_MAXIMUM** | ~120 | All | Optimized for speed |
+| **PERFORMANCE_NEXT_COMPACT** | ~14 | Next | Z80N MUL instruction |
+| **PERFORMANCE_NEXT_BALANCED** | ~29 | Next | Z80N MUL + overflow check |
+| **PERFORMANCE_NEXT_MAXIMUM** | ~20 | Next | Z80N MUL + special cases |
+
+**Performance Improvement**: Up to **85% faster** on Spectrum Next!
 
 ### 16-bit Operations
 
@@ -191,10 +218,13 @@ CALL    Screen_ClearAttr_Unified
 
 #### Multiplication
 - `Multiply8x8_Unified` - 8×8 bit unsigned multiplication
+  - Standard Z80: COMPACT/BALANCED/MAXIMUM (35-160 T-states)
+  - Next Z80N: NEXT_COMPACT/NEXT_BALANCED/NEXT_MAXIMUM (10-29 T-states)
 - `Multiply16x8_Unified` - 16×8 bit unsigned multiplication
 
 **Input**: A/HL = multiplicand, B = multiplier, C = performance level  
-**Output**: HL = result
+**Output**: HL = result  
+**Z80N Performance**: Up to 85% faster on Spectrum Next
 
 #### Division
 - `Divide8x8_Unified` - 8÷8 bit unsigned division  
@@ -299,7 +329,7 @@ SCREEN_ALLPUSH               EQU 5    ; 256 pixels per loop
 
 NextLibrary includes comprehensive test suites:
 
-- **37 Test Cases** covering all mathematical operations
+- **40 Test Cases** covering all mathematical operations
 - **Algorithm Validation** for all random number generators
 - **Performance Verification** across all performance levels
 - **Edge Case Testing** for boundary conditions
@@ -360,6 +390,67 @@ NextLibrary/
 │   └── nextlibrary.nex     # Compiled library
 └── README.md              # This file
 ```
+
+## 📄 **License**
+
+**NextLibrary is available for free use under the following terms:**
+
+### Free Use License
+
+This software is provided **FREE OF CHARGE** for any purpose, including commercial and non-commercial use. You are granted the following rights:
+
+✅ **Use**: Use this library in any project without restriction  
+✅ **Modify**: Modify the source code to suit your needs  
+✅ **Distribute**: Redistribute original or modified versions  
+✅ **Commercial Use**: Use in commercial projects without royalties or fees  
+✅ **Private Use**: Use in private/personal projects  
+
+### Disclaimer of Warranty and Liability
+
+**THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.**
+
+**IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.**
+
+By using this library, you acknowledge that:
+
+- **No Support Obligation**: The author has no obligation to provide support, updates, or bug fixes
+- **Use at Your Own Risk**: You assume all risks associated with using this software
+- **No Responsibility**: The author takes no responsibility for any consequences of using this library in your projects
+- **Your Responsibility**: You are responsible for testing and validating the library's suitability for your specific use case
+
+### Attribution (Optional)
+
+While not required, attribution is appreciated:
+```
+"Uses NextLibrary - Z80 Assembly Utilities by [Author Name]"
+```
+
+### Usage Information (Encouraged)
+
+**Help the community!** If you use NextLibrary in your project, please consider:
+
+📝 **Opening an issue or discussion** in this repository with:
+- **Project Name**: What you're building
+- **Routines Used**: Which NextLibrary functions you're using (e.g., "8×8 multiplication (Z80N), XORShift random, screen clearing")
+- **Platform Target**: 48K, 128K, +2, +3, Next, or multi-platform
+- **Brief Description**: What your project does
+- **Optional Link**: Share your project if it's public!
+
+This information helps:
+- **Other Developers**: See real-world usage examples and inspiration
+- **Library Development**: The author gaining an understanding of which routines are most valuable and most used
+- **Community Building**: Connect developers using similar functionality
+- **Documentation**: Improve examples based on actual use cases
+
+Example usage report:
+```
+Project: "RetroBlaster 2024"
+Routines: Multiply8x8 (NEXT_COMPACT), Multiply16x8 (MAXIMUM), Random8 XORShift, Screen clearing (4PUSH)
+Platform: ZX Spectrum Next (Using Z80N optimizations)
+Description: Side-scrolling shooter with procedural enemies and ultra-fast multiplication
+```
+
+**TL;DR**: Use it freely, modify it, distribute it, make money with it - just don't blame me if something goes wrong! And if you feel like sharing what you built, that's awesome! 😊
 
 ## 🤝 **Contributing**
 
