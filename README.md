@@ -19,8 +19,6 @@ To those facebook users, these answer the majority of the insulting remarks...
 2) I am not living in the past, I am looking to the future - by providing device independence as a choice, developers can move to new platform and get things working quickly and subsequently make device specific changes should they so desire once everything is up and runniing. This provides a development path not available without device independent options to hot swap with.
 3) If you find yourself knocking something being provided free, look to your own insecurities and attitudes.
 
-I wont mention names because that isnt right, but will say these toxic individuals are within the Facebook group "ZX Spectrum Next" - be very wary of this group.
-
 ## Target Platforms
 
 The following platforms are targetted. The main entry points and individual functionality are tagged with @COMPAT: 48K,128K,+2,+3,NEXT - where the list shown is the known compatability of the routine. I also detail below the main differences of the platforms which will give rise to the compatability of the routines. This means NEXT only routines will be tagged with just @COMPAT: NEXT, and if Z80N op codes are present, then @Z80N: MUL DE, ... will be documented as to which extended op codes are being used.
