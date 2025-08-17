@@ -9,6 +9,18 @@ NextLibrary provides world-class mathematical operations, random number generati
 
 As I extend this library over time (see the TODO list), I will first share the device independent routines and then will on a subsequent push will add the Z80N optimised routines.
 
+## NOTICE
+
+Continued development of these routines has been put on hiatus following disparaging and insulting remarks made at my expense on Facebook. The perpetratos have been reported for harrassment. I doubt Facebook will do anything, so for the time being I am keeping my remaining efforts private. If you are interested in particular code/functionality, contact me on this project and if I have worked on it privately, I am happy to share with you privately for now. At the very least I can let you know if and where your request is in the TODO pipeline.
+
+To those facebook users, these answer the majority of the insulting remarks...
+
+1) I am not ignorant. I chose to provide device independent examples before showing Spectrum Next only alternatives. I did this because I see the value of learning from examples and the value of device independence as a developmental choice. I also wanted to enable the most diverse range of target devices and did not feel it best benefit to tie things to one device.
+2) I am not living in the past, I am looking to the future - by providing device independence as a choice, developers can move to new platform and get things working quickly and subsequently make device specific changes should they so desire once everything is up and runniing. This provides a development path not available without device independent options to hot swap with.
+3) If you find yourself knocking something being provided free, look to your own insecurities and attitudes.
+
+I wont mention names because that isnt right, but will say these toxic individuals are within the Facebook group "ZX Spectrum Next" - be very wary of this group.
+
 ## Target Platforms
 
 The following platforms are targetted. The main entry points and individual functionality are tagged with @COMPAT: 48K,128K,+2,+3,NEXT - where the list shown is the known compatability of the routine. I also detail below the main differences of the platforms which will give rise to the compatability of the routines. This means NEXT only routines will be tagged with just @COMPAT: NEXT, and if Z80N op codes are present, then @Z80N: MUL DE, ... will be documented as to which extended op codes are being used.
