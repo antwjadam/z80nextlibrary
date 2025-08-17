@@ -5,9 +5,12 @@ SCREEN_PIXEL_BASE               EQU     0x4000  ; Start of pixel memory
 SCREEN_ATTR_BASE                EQU     0x5800  ; Start of attribute memory
 
 ; Performance levels for multiply and divide routines.
-PERFORMANCE_COMPACT             EQU     0       ; Smallest code base required
-PERFORMANCE_BALANCED            EQU     1       ; Balance between speed and memory usage
-PERFORMANCE_MAXIMUM             EQU     2       ; Maximum speed but larger memory usage
+PERFORMANCE_COMPACT             EQU     0       ; Smallest code base required - device independent choice.
+PERFORMANCE_BALANCED            EQU     1       ; Balance between speed and memory usage - device independent choice.
+PERFORMANCE_MAXIMUM             EQU     2       ; Maximum speed but larger memory usage - device independent choice.
+PERFORMANCE_NEXT_COMPACT        EQU     3       ; Smallest code base required - Next only compatible choice.
+PERFORMANCE_NEXT_BALANCED       EQU     4       ; Balance between speed and memory usage - Next only compatible choice.
+PERFORMANCE_NEXT_MAXIMUM        EQU     5       ; Maximum speed but larger memory usage - Next only compatible choice.
 
 ; Random number generator options
 PERFORMANCE_RANDOM_LCG          EQU     0       ; Fast, good distribution, full period
