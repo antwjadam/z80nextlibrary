@@ -49,7 +49,9 @@ The following platforms are targetted, main entry points tagged with @COMPAT: 48
 - **8×8 Unsigned Multiplication**: Six performance levels (10-160 T-states)
   - Standard Z80: COMPACT, BALANCED, MAXIMUM (35-160 T-states)
   - Next Z80N: NEXT_COMPACT, NEXT_BALANCED, NEXT_MAXIMUM (10-29 T-states)
-- **16×8 Unsigned Multiplication**: Optimized for 16-bit arithmetic (45-380 T-states)
+- **16×8 Unsigned Multiplication**: Six performance levels (45-380 T-states)
+  - Standard Z80: COMPACT, BALANCED, MAXIMUM (45-380 T-states)
+  - Next Z80N: NEXT_COMPACT, NEXT_BALANCED, NEXT_MAXIMUM (97 T-states)
 - **8÷8 Unsigned Division**: Variable timing division algorithms (25-1975 T-states)
 - **16÷8 Unsigned Division**: High-precision 16-bit division (45-1300 T-states)
 
@@ -175,15 +177,35 @@ CALL    Random8_Unified
 
 **Performance Improvement**: Up to **85% faster** on Spectrum Next!
 
+### 16×8 Multiplication Performance
+
+| Performance Level | T-States | Platform | Description |
+|------------------|----------|----------|-------------|
+| **PERFORMANCE_COMPACT** | 45-380 | All | Variable timing, compact code |
+| **PERFORMANCE_BALANCED** | ~180 | All | Fixed timing, predictable |
+| **PERFORMANCE_MAXIMUM** | ~140 | All | Optimized for speed |
+| **PERFORMANCE_NEXT_COMPACT** | ~97 | Next | Z80N MUL instruction |
+| **PERFORMANCE_NEXT_BALANCED** | ~97 | Next | Z80N MUL + same algorithm |
+| **PERFORMANCE_NEXT_MAXIMUM** | ~97 | Next | Z80N MUL + same algorithm |
+
+**Performance Improvement**: Up to **75% faster** on Spectrum Next for balanced/maximum modes!
+
 ### 16-bit Operations
 
 ```asm
-; 16×8 Multiplication
+; 16×8 Multiplication (Standard Z80)
 LD      HL, 1000        ; 16-bit multiplicand
 LD      B, 50           ; 8-bit multiplier
 LD      C, PERFORMANCE_MAXIMUM
 CALL    Multiply16x8_Unified
-; Result in HL = 50000
+; Result in DE:HL = 50000
+
+; 16×8 Multiplication (Next Z80N - Ultra Fast!)
+LD      HL, 1000        ; 16-bit multiplicand  
+LD      B, 50           ; 8-bit multiplier
+LD      C, PERFORMANCE_NEXT_COMPACT   ; Uses Z80N MUL instruction
+CALL    Multiply16x8_Unified
+; Result in DE:HL = 50000 (75% faster!)
 
 ; 16÷8 Division  
 LD      HL, 1234        ; 16-bit dividend
@@ -221,10 +243,12 @@ CALL    Screen_ClearAttr_Unified
   - Standard Z80: COMPACT/BALANCED/MAXIMUM (35-160 T-states)
   - Next Z80N: NEXT_COMPACT/NEXT_BALANCED/NEXT_MAXIMUM (10-29 T-states)
 - `Multiply16x8_Unified` - 16×8 bit unsigned multiplication
+  - Standard Z80: COMPACT/BALANCED/MAXIMUM (45-380 T-states)
+  - Next Z80N: NEXT_COMPACT/NEXT_BALANCED/NEXT_MAXIMUM (97 T-states)
 
 **Input**: A/HL = multiplicand, B = multiplier, C = performance level  
-**Output**: HL = result  
-**Z80N Performance**: Up to 85% faster on Spectrum Next
+**Output**: HL = result (8×8), DE:HL = result (16×8)  
+**Z80N Performance**: Up to 85% faster (8×8) and 75% faster (16×8) on Spectrum Next
 
 #### Division
 - `Divide8x8_Unified` - 8÷8 bit unsigned division  
@@ -252,10 +276,15 @@ CALL    Screen_ClearAttr_Unified
 ### Algorithm Constants
 
 ```asm
-; Performance Levels
+; Performance Levels (Standard Z80)
 PERFORMANCE_COMPACT        EQU 0
 PERFORMANCE_BALANCED       EQU 1  
 PERFORMANCE_MAXIMUM        EQU 2
+
+; Performance Levels (Next Z80N)
+PERFORMANCE_NEXT_COMPACT   EQU 3
+PERFORMANCE_NEXT_BALANCED  EQU 4
+PERFORMANCE_NEXT_MAXIMUM   EQU 5
 
 ; Random Algorithms
 PERFORMANCE_RANDOM_LCG           EQU 0    ; Linear Congruential Generator
@@ -298,6 +327,7 @@ SCREEN_ALLPUSH               EQU 5    ; 256 pixels per loop
 |-----------|---------|----------|---------|
 | **Multiply 8×8 Unsigned** | 35-75 | 160 | 120 |
 | **Multiply 16×8 Unsigned** | 45-380 | 180 | 140 |
+| **Multiply 16×8 Z80N** | 97 | 97 | 97 |
 | **Divide 8×8 Unsigned** | 25-1950 | 30-1975 | 40-1000 |
 | **Divide 16×8 Unsigned** | 45-1300 | 220-280 | 180-420 |
 
@@ -329,7 +359,7 @@ SCREEN_ALLPUSH               EQU 5    ; 256 pixels per loop
 
 NextLibrary includes comprehensive test suites:
 
-- **40 Test Cases** covering all mathematical operations
+- **43 Test Cases** covering all mathematical operations
 - **Algorithm Validation** for all random number generators
 - **Performance Verification** across all performance levels
 - **Edge Case Testing** for boundary conditions

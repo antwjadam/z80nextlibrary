@@ -10,9 +10,9 @@
 ; PERFORMANCE_COMPACT:  ~35-75 T-states (variable, depends on multiplier bit pattern)
 ; PERFORMANCE_BALANCED: ~160 T-states (fixed, 8 iterations regardless of multiplier)  
 ; PERFORMANCE_MAXIMUM:  ~120 T-states (fixed, unrolled loop with all bit checks)
-; PERFORMANCE_NEXT_COMPACT: ~14 T-states (Z80N MUL D, E instruction, does not check for overflow)
-; PERFORMANCE_NEXT_BALANCED: ~29 T-states (Z80N MUL D, E instruction, checks for overflow returning Z set for no overflow and NZ if overflow occurred.)
-; PERFORMANCE_NEXT_MAXIMUM: ~25 T-states (Z80N MUL D, E instruction, accounts for 0 and 1 special cases, checks for overflow as balanced does.)
+; PERFORMANCE_NEXT_COMPACT: ~14 T-states (Z80N MUL DE instruction, does not check for overflow)
+; PERFORMANCE_NEXT_BALANCED: ~29 T-states (Z80N MUL DE instruction, checks for overflow returning Z set for no overflow and NZ if overflow occurred.)
+; PERFORMANCE_NEXT_MAXIMUM: ~25 T-states (Z80N MUL DE instruction, accounts for 0 and 1 special cases, checks for overflow as balanced does.)
 ;
 ; @COMPAT: 48K,128K,+2,+3,NEXT for first 3 choices, NEXT for last 3 choices
 
@@ -41,7 +41,6 @@ Multiply8x8_Unified:    LD      H, 0                    ; Clear high byte of res
                         JP      Z, Multiply8x8_Next_Compact
                         CP      PERFORMANCE_NEXT_BALANCED
                         JP      Z, Multiply8x8_Next_Balanced
-                        CP      PERFORMANCE_NEXT_MAXIMUM
                         JP      Multiply8x8_Next_Maximum   ; the default is fastest Next only
 ;
 ; @COMPAT: 48K,128K,+2,+3,NEXT - device independent choice

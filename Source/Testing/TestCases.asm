@@ -38,3 +38,6 @@
                 INCLUDE "TestCase038.asm"  ; Multiply 8x8 - PERFORMANCE_NEXT_COMPACT - NEXT only, using Z80N op codes
                 INCLUDE "TestCase039.asm"  ; Multiply 8x8 - PERFORMANCE_NEXT_BALANCED - NEXT only, using Z80N op codes
                 INCLUDE "TestCase040.asm"  ; Multiply 8x8 - PERFORMANCE_NEXT_MAXIMUM - NEXT only, using Z80N op codes
+                INCLUDE "TestCase041.asm"  ; Multiply 16x8 - PERFORMANCE_NEXT_COMPACT - NEXT only, using Z80N op codes - Large Result Test
+                INCLUDE "TestCase042.asm"  ; Multiply 16x8 - PERFORMANCE_NEXT_BALANCED - NEXT only, using Z80N op codes - Large Result Test
+                INCLUDE "TestCase043.asm"  ; Multiply 16x8 - PERFORMANCE_NEXT_MAXIMUM - NEXT only, using Z80N op codes - Large Result Test

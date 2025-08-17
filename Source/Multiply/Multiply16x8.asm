@@ -10,15 +10,28 @@
 ; PERFORMANCE_COMPACT:  ~45-380 T-states (variable, depends on multiplier value)
 ; PERFORMANCE_BALANCED: ~180 T-states (fixed, 8 iterations with 16-bit arithmetic)  
 ; PERFORMANCE_MAXIMUM:  ~140 T-states (fixed, unrolled loop optimized for speed)
+; PERFORMANCE_NEXT_COMPACT: ~97 T-states (Z80N optimised, using MUL DE instruction)
+; PERFORMANCE_NEXT_BALANCED: ~97 T-states (Z80N optimised, using MUL DE instruction)
+; PERFORMANCE_NEXT_MAXIMUM: ~97 T-states (Z80N optimised, using MUL DE instruction)
 ;
-; @COMPAT: 48K,128K,+2,+3,NEXT
+; @COMPAT: 48K,128K,+2,+3,NEXT for first 3 choices, NEXT for last 3 choices
 
 Multiply16x8_Unified:   LD      A, C                    ; Get Performance Level
+                        CP      PERFORMANCE_COMPACT
+                        JP      Z, Multiply16x8_Compact
                         CP      PERFORMANCE_MAXIMUM
                         JP      Z, Multiply16x8_Maximum
                         CP      PERFORMANCE_BALANCED
                         JP      Z, Multiply16x8_Balanced
-                        ; fall through to COMPACT
+
+                        ; The following are only compatible with the Spectrum Next Z80N architecture.
+                        ; So using these prevents your code base generating for original Spectrum hardware
+
+                        CP      PERFORMANCE_NEXT_COMPACT
+                        JP      Z, Multiply16x8_Next_Compact
+                        CP      PERFORMANCE_NEXT_BALANCED
+                        JP      Z, Multiply16x8_Next_Balanced
+                        JP      Multiply16x8_Next_Maximum   ; the default is fastest Next only
 ;
 ; @COMPAT: 48K,128K,+2,+3,NEXT
 Multiply16x8_Compact:   ; Handle zero multiplier quickly
@@ -103,58 +116,85 @@ Multiply16x8_Maximum:   ; Check for zero multiplier quickly
                         ADD     HL, BC                  ; Add multiplicand
                         JR      NC, M16x8_Max_Bit1
                         INC     D                       ; Handle carry
-M16x8_Max_Bit1:        SLA     C                       ; Double multiplicand
+M16x8_Max_Bit1:         SLA     C                       ; Double multiplicand
                         RL      B
                         RRC     A                       ; Test bit 1
                         JR      NC, M16x8_Max_Bit2
                         ADD     HL, BC                  ; Add multiplicand
                         JR      NC, M16x8_Max_Bit2
                         INC     D                       ; Handle carry
-M16x8_Max_Bit2:        SLA     C                       ; Double multiplicand
+M16x8_Max_Bit2:         SLA     C                       ; Double multiplicand
                         RL      B
                         RRC     A                       ; Test bit 2
                         JR      NC, M16x8_Max_Bit3
                         ADD     HL, BC                  ; Add multiplicand
                         JR      NC, M16x8_Max_Bit3
                         INC     D                       ; Handle carry
-M16x8_Max_Bit3:        SLA     C                       ; Double multiplicand
+M16x8_Max_Bit3:         SLA     C                       ; Double multiplicand
                         RL      B
                         RRC     A                       ; Test bit 3
                         JR      NC, M16x8_Max_Bit4
                         ADD     HL, BC                  ; Add multiplicand
                         JR      NC, M16x8_Max_Bit4
                         INC     D                       ; Handle carry
-M16x8_Max_Bit4:        SLA     C                       ; Double multiplicand
+M16x8_Max_Bit4:         SLA     C                       ; Double multiplicand
                         RL      B
                         RRC     A                       ; Test bit 4
                         JR      NC, M16x8_Max_Bit5
                         ADD     HL, BC                  ; Add multiplicand
                         JR      NC, M16x8_Max_Bit5
                         INC     D                       ; Handle carry
-M16x8_Max_Bit5:        SLA     C                       ; Double multiplicand
+M16x8_Max_Bit5:         SLA     C                       ; Double multiplicand
                         RL      B
                         RRC     A                       ; Test bit 5
                         JR      NC, M16x8_Max_Bit6
                         ADD     HL, BC                  ; Add multiplicand
                         JR      NC, M16x8_Max_Bit6
                         INC     D                       ; Handle carry
-M16x8_Max_Bit6:        SLA     C                       ; Double multiplicand
+M16x8_Max_Bit6:         SLA     C                       ; Double multiplicand
                         RL      B
                         RRC     A                       ; Test bit 6
                         JR      NC, M16x8_Max_Bit7
                         ADD     HL, BC                  ; Add multiplicand
                         JR      NC, M16x8_Max_Bit7
                         INC     D                       ; Handle carry
-M16x8_Max_Bit7:        SLA     C                       ; Double multiplicand
+M16x8_Max_Bit7:         SLA     C                       ; Double multiplicand
                         RL      B
                         RRC     A                       ; Test bit 7
                         JR      NC, M16x8_Max_Done
                         ADD     HL, BC                  ; Add multiplicand
                         JR      NC, M16x8_Max_Done
                         INC     D                       ; Handle carry
-M16x8_Max_Done:        LD      E, 0                    ; E = 0 (DE = high result)
+M16x8_Max_Done:         LD      E, 0                    ; E = 0 (DE = high result)
                         RET                             ; DE:HL = result
                         RET
 M16x8_Maximum_Zero:     LD      HL, 0
                         LD      DE, 0
+                        RET
+;
+; @COMPAT: NEXT
+; @Z80N: MUL DE
+; @REQUIRES: Spectrum Next, Z80N architecture.
+Multiply16x8_Next_Compact: ; so far I have identfied only one Z80N optimised multiply, so all labels resolve to that one routine allowing easy addition of new options when identified
+Multiply16x8_Next_Balanced: 
+Multiply16x8_Next_Maximum:
+                        ; Multiply high byte - H * B
+                        LD      D, H                    ; D = high byte of multiplicand
+                        LD      E, B                    ; E = multiplier
+                        MUL     DE                      ; Z80N, Multiply DE, DE is now the result of H * B
+                        PUSH    DE                      ; Save high byte result on stack
+                        ; Multiply low byte - L * B
+                        LD      D, L                    ; D = low byte of multiplicand
+                        LD      E, B                    ; E = multiplier
+                        MUL     DE                      ; Z80N, Multiply DE, DE is now the result of L * B
+                        EX      DE, HL                  ; Exchange DE and HL, now HL = low byte result
+                        ; Combine result is (H*B)*256 + (L*B)
+                        POP     DE                      ; DE = H × B result
+                        LD      A, E                    ; A = low byte of (H × B)
+                        ADD     A, H                    ; Add to high byte of (L × B) 
+                        LD      H, A                    ; Store combined high byte
+                        LD      A, D                    ; A = high byte of (H × B)
+                        ADC     A, 0                    ; Add carry from previous operation
+                        LD      D, A                    ; D = high byte of final result  
+                        LD      E, 0                    ; E = 0 (24-bit result assumption)
                         RET
