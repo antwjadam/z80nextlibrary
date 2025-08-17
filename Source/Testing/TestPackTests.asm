@@ -179,5 +179,17 @@ TestPackTests:      LD      A, 0x07                            ; Set default att
                     RET     NZ              ; If test failed, return
                     LD      A, 40           ; Test number
                     CALL    PrintPassed
+                    CALL    TestCase041     ; Test case 41: Compact Multiply 16x8 - NEXT only, using Z80N op codes - Large Result
+                    RET     NZ              ; If test failed, return
+                    LD      A, 41           ; Test number
+                    CALL    PrintPassed
+                    CALL    TestCase042     ; Test case 42: Balanced Multiply 16x8 - NEXT only, using Z80N op codes - Large Result
+                    RET     NZ              ; If test failed, return
+                    LD      A, 42           ; Test number
+                    CALL    PrintPassed
+                    CALL    TestCase043     ; Test case 43: Maximum Multiply 16x8 - NEXT only, using Z80N op codes - Large Result
+                    RET     NZ              ; If test failed, return
+                    LD      A, 43           ; Test number
+                    CALL    PrintPassed
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
                     JP      AllTestsPassed  ; If we reach here, all tests passed
