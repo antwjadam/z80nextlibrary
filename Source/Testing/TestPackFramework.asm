@@ -14,6 +14,7 @@ AllTestsPassed:     ; Print success message at bottom
                     DEC     B               ; Move back to line 21
                     LD      HL, MsgAllPassed
                     CALL    PrintStringAt
+                    CALL    WaitForKey
                     LD      A, 0xFF         ; Success indicator
                     RET
 

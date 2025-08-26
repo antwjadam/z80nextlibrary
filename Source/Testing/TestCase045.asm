@@ -1,7 +1,7 @@
-TestCase045:        ; Test case 45: 100 ÷ 8 = 12 remainder 4 (8x8 MAXIMUM multiplication, using Z80N op codes)
+TestCase045:        ; Test case 45: 100 ÷ 8 = 12 remainder 4 (8x8 MAXIMUM multiplication, using Z80N op codes with 16-bit reciprocals)
                     LD      A, 100          ; Dividend
                     LD      B, 8            ; Divisor
-                    LD      C, PERFORMANCE_NEXT_MAXIMUM ; uses reciprocal table
+                    LD      C, PERFORMANCE_NEXT_MAXIMUM ; uses 16-bit reciprocal table
                     CALL    Divide8x8_Unified
 
                     ; Result should be A=12, B=4
