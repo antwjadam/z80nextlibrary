@@ -192,4 +192,17 @@ TestPackTests:      LD      A, 0x07                            ; Set default att
                     LD      A, 43           ; Test number
                     CALL    PrintPassed
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+                    CALL    TestCase044     ; Test case 44: Compact Divide 8x8 - NEXT only, using Z80N op codes
+                    RET     NZ              ; If test failed, return
+                    LD      A, 44           ; Test number
+                    CALL    PrintPassed
+                    CALL    TestCase045     ; Test case 45: Maximum Divide 16x8 - NEXT only, using Z80N op codes, reciprocal table
+                    RET     NZ              ; If test failed, return
+                    LD      A, 45           ; Test number
+                    CALL    PrintPassed
+                    CALL    TestCase046     ; Test case 46: Balanced Divide 8x8 - NEXT only, using Z80N op codes
+                    RET     NZ              ; If test failed, return
+                    LD      A, 46           ; Test number
+                    CALL    PrintPassed
+; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
                     JP      AllTestsPassed  ; If we reach here, all tests passed

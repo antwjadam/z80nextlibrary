@@ -16,11 +16,11 @@
 ;
 ; @COMPAT: 48K,128K,+2,+3,NEXT for first 3 choices, NEXT for last 3 choices
 
-Multiply8x8_Unified:    LD      H, 0                    ; Clear high byte of result
-                        LD      L, 0                    ; Clear low byte of result
-                        LD      D, 0                    ; Clear high byte of multiplicand
-                        LD      E, A                    ; Move multiplicand to low byte of DE
-                        LD      A, C                    ; Get Performance Level
+Multiply8x8_Unified:    LD      H, 0                          ; Clear high byte of result
+                        LD      L, 0                          ; Clear low byte of result
+                        LD      D, 0                          ; Clear high byte of multiplicand
+                        LD      E, A                          ; Move multiplicand to low byte of DE
+                        LD      A, C                          ; Get Performance Level
                         CP      PERFORMANCE_COMPACT
                         JP      Z, Multiply8x8_Compact
                         CP      PERFORMANCE_MAXIMUM
@@ -41,7 +41,7 @@ Multiply8x8_Unified:    LD      H, 0                    ; Clear high byte of res
                         JP      Z, Multiply8x8_Next_Compact
                         CP      PERFORMANCE_NEXT_BALANCED
                         JP      Z, Multiply8x8_Next_Balanced
-                        JP      Multiply8x8_Next_Maximum   ; the default is fastest Next only
+                        JP      Multiply8x8_Next_Maximum      ; the default is fastest Next only
 ;
 ; @COMPAT: 48K,128K,+2,+3,NEXT - device independent choice
 Multiply8x8_Compact:    ; optimised for code size

@@ -25,4 +25,4 @@ Test043Failed:      LD      HL, MsgTestCase043
                     LD      A, 43
                     JP      PrintFailedMessage
 
-MsgTestCase043:     DB      " Z80N (500 x 200 = 100K)", 0
+MsgTestCase043:     DB      " Z80N (500x200=100K)", 0
