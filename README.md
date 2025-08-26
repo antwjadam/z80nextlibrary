@@ -2,6 +2,7 @@
 
 [![Platform: ZX Spectrum Next](https://img.shields.io/badge/Platform-ZX%20Spectrum%20Next-blue.svg)](https://www.specnext.com/)
 [![Assembly: Z80](https://img.shields.io/badge/Assembly-Z80-green.svg)](https://en.wikipedia.org/wiki/Zilog_Z80)
+[![Assembly: Z80N](https://img.shields.io/badge/Assembly-Z80N-orange.svg)](https://wiki.specnext.dev/Z80N_Extended_Opcodes)
 
 **A high-performance, utility library for Z80 assembly development on the ZX Spectrum and ZX Spectrum Next platforms. The choice is yours, you can use device independent routines or limit yourself to platform specific functionality.**
 
@@ -9,15 +10,11 @@ NextLibrary provides world-class mathematical operations, random number generati
 
 As I extend this library over time (see the TODO list), I will first share the device independent routines and then will on a subsequent push will add the Z80N optimised routines.
 
-## NOTICE
+## Latest Updates
 
-Continued development of these routines has been put on hiatus following disparaging and insulting remarks made at my expense on Facebook. The perpetratos have been reported for harrassment. I doubt Facebook will do anything, so for the time being I am keeping my remaining efforts private. If you are interested in particular code/functionality, contact me on this project and if I have worked on it privately, I am happy to share with you privately for now. At the very least I can let you know if and where your request is in the TODO pipeline.
+The most recent update is to provide division utilising Z80N for additional Spectrum Next options.
 
-To those facebook users, these answer the majority of the insulting remarks...
-
-1) I am not ignorant. I chose to provide device independent examples before showing Spectrum Next only alternatives. I did this because I see the value of learning from examples and the value of device independence as a developmental choice. I also wanted to enable the most diverse range of target devices and did not feel it best benefit to tie things to one device.
-2) I am not living in the past, I am looking to the future - by providing device independence as a choice, developers can move to new platform and get things working quickly and subsequently make device specific changes should they so desire once everything is up and runniing. This provides a development path not available without device independent options to hot swap with.
-3) If you find yourself knocking something being provided free, look to your own insecurities and attitudes.
+Two new division options are provided, the hybrid routine is a combination of MUL DE and Z80N Add instructions for faster convergence to the desired division result. A larger reciprocal version is also made available combining Newton-Raphson MUL for faster convergence in interative division, the iterative division utilisies a pre-computed reiprocal table (so is much larger than other options with regard to memory footprint).
 
 ## Target Platforms
 
@@ -62,7 +59,10 @@ The following platforms are targetted. The main entry points and individual func
 - **16×8 Unsigned Multiplication**: Six performance levels (45-380 T-states)
   - Standard Z80: COMPACT, BALANCED, MAXIMUM (45-380 T-states)
   - Next Z80N: NEXT_COMPACT, NEXT_BALANCED, NEXT_MAXIMUM (97 T-states)
-- **8÷8 Unsigned Division**: Variable timing division algorithms (25-1975 T-states)
+- **8÷8 Unsigned Division**: Six performance levels (25-1975 T-states)
+  - Standard Z80: COMPACT, BALANCED, MAXIMUM (25-1975 T-states)
+  - Next Z80N: NEXT_COMPACT, NEXT_BALANCED (40-400 T-states hybrid)
+  - Next Z80N: NEXT_MAXIMUM (85 T-states reciprocal table - ⚠️ minor accuracy trade-offs)
 - **16÷8 Unsigned Division**: High-precision 16-bit division (45-1300 T-states)
 
 ### 🎲 **Random Number Generation**
@@ -200,6 +200,20 @@ CALL    Random8_Unified
 
 **Performance Improvement**: Up to **75% faster** on Spectrum Next for balanced/maximum modes!
 
+### 8÷8 Division Performance
+
+| Performance Level | T-States | Platform | Description |
+|------------------|----------|----------|-------------|
+| **PERFORMANCE_COMPACT** | 25-1950 | All | Variable timing, compact subtraction |
+| **PERFORMANCE_BALANCED** | 30-1975 | All | Similar to compact, different registers |
+| **PERFORMANCE_MAXIMUM** | 40-1000 | All | Optimized with 2× acceleration |
+| **PERFORMANCE_NEXT_COMPACT** | 40-400 | Next | Z80N MUL hybrid method |
+| **PERFORMANCE_NEXT_BALANCED** | 40-400 | Next | Z80N MUL hybrid (same as compact) |
+| **PERFORMANCE_NEXT_MAXIMUM** | ~85 | Next | Z80N MUL reciprocal table ⚠️ |
+
+**Performance Improvement**: Up to **95% faster** on Spectrum Next!  
+**⚠️ Accuracy Warning**: NEXT_MAXIMUM uses precomputed reciprocal table for speed but may introduce minor rounding errors (typically ±1) in edge cases. For applications requiring exact division, use NEXT_COMPACT or NEXT_BALANCED.
+
 ### 16-bit Operations
 
 ```asm
@@ -261,11 +275,16 @@ CALL    Screen_ClearAttr_Unified
 **Z80N Performance**: Up to 85% faster (8×8) and 75% faster (16×8) on Spectrum Next
 
 #### Division
-- `Divide8x8_Unified` - 8÷8 bit unsigned division  
+- `Divide8x8_Unified` - 8÷8 bit unsigned division
+  - Standard Z80: COMPACT/BALANCED/MAXIMUM (25-1975 T-states)
+  - Next Z80N: NEXT_COMPACT/NEXT_BALANCED (40-400 T-states hybrid method)
+  - Next Z80N: NEXT_MAXIMUM (85 T-states reciprocal table)
 - `Divide16x8_Unified` - 16÷8 bit unsigned division
 
 **Input**: A/HL = dividend, B = divisor, C = performance level  
-**Output**: A/HL = quotient, remainder in A
+**Output**: A/HL = quotient, B = remainder  
+**Z80N Performance**: Up to 95% faster on Spectrum Next  
+**⚠️ Accuracy Note**: NEXT_MAXIMUM uses reciprocal approximation with minor rounding errors (~±1) for speed
 
 ### Random Number Generation
 
@@ -339,6 +358,8 @@ SCREEN_ALLPUSH               EQU 5    ; 256 pixels per loop
 | **Multiply 16×8 Unsigned** | 45-380 | 180 | 140 |
 | **Multiply 16×8 Z80N** | 97 | 97 | 97 |
 | **Divide 8×8 Unsigned** | 25-1950 | 30-1975 | 40-1000 |
+| **Divide 8×8 Z80N Hybrid** | 40-400 | 40-400 | - |
+| **Divide 8×8 Z80N Reciprocal** | - | - | 85 |
 | **Divide 16×8 Unsigned** | 45-1300 | 220-280 | 180-420 |
 
 ### Random Generation T-States

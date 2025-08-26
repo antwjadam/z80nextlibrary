@@ -14,7 +14,7 @@ TestCase040:        ; Test case 2: 12 × 8 = 96  (using Z80N op codes)
                     LD      HL, MsgTestCase040
                     RET     Z                   ; Z set is test passed, else test failed.
 Test040Failed:      LD      HL, MsgTestCase040
-                    LD      A, 2                ; Test number
+                    LD      A, 40               ; Test number
                     JP      PrintFailedMessage
 
 MsgTestCase040:     DB      " Z80N (12 x 8 = 96)", 0

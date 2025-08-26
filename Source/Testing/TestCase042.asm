@@ -25,4 +25,4 @@ Test042Failed:      LD      HL, MsgTestCase042
                     LD      A, 42
                     JP      PrintFailedMessage
 
-MsgTestCase042:     DB      " Z80N (2K x 50 = 100K)", 0
+MsgTestCase042:     DB      " Z80N (2Kx50=100K)", 0

@@ -41,3 +41,6 @@
                 INCLUDE "TestCase041.asm"  ; Multiply 16x8 - PERFORMANCE_NEXT_COMPACT - NEXT only, using Z80N op codes - Large Result Test
                 INCLUDE "TestCase042.asm"  ; Multiply 16x8 - PERFORMANCE_NEXT_BALANCED - NEXT only, using Z80N op codes - Large Result Test
                 INCLUDE "TestCase043.asm"  ; Multiply 16x8 - PERFORMANCE_NEXT_MAXIMUM - NEXT only, using Z80N op codes - Large Result Test
+                INCLUDE "TestCase044.asm"  ; Divide 8x8 - PERFORMANCE_NEXT_COMPACT - NEXT only, using Z80N op codes. traditional methods
+                INCLUDE "TestCase045.asm"  ; Divide 16x8 - PERFORMANCE_NEXT_MAXIMUM - NEXT only, using Z80N op codes, reciprocal table
+                INCLUDE "TestCase046.asm"  ; Divide 8x8 - PERFORMANCE_NEXT_BALANCED - NEXT only, using Z80N op codes, balanced multiplication

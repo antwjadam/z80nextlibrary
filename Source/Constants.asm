@@ -12,6 +12,7 @@ PERFORMANCE_NEXT_COMPACT        EQU     3       ; Smallest code base required - 
 PERFORMANCE_NEXT_BALANCED       EQU     4       ; Balance between speed and memory usage - Next only compatible choice.
 PERFORMANCE_NEXT_MAXIMUM        EQU     5       ; Maximum speed but larger memory usage - Next only compatible choice.
 
+
 ; Random number generator options
 PERFORMANCE_RANDOM_LCG          EQU     0       ; Fast, good distribution, full period
 PERFORMANCE_RANDOM_LFSR         EQU     1       ; Best quality, maximum period, moderate speed
