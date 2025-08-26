@@ -196,13 +196,25 @@ TestPackTests:      LD      A, 0x07                            ; Set default att
                     RET     NZ              ; If test failed, return
                     LD      A, 44           ; Test number
                     CALL    PrintPassed
-                    CALL    TestCase045     ; Test case 45: Maximum Divide 16x8 - NEXT only, using Z80N op codes, reciprocal table
+                    CALL    TestCase045     ; Test case 45: Maximum Divide 16x8 - NEXT only, using Z80N op codes, 16-bit reciprocal table
                     RET     NZ              ; If test failed, return
                     LD      A, 45           ; Test number
                     CALL    PrintPassed
-                    CALL    TestCase046     ; Test case 46: Balanced Divide 8x8 - NEXT only, using Z80N op codes
+                    CALL    TestCase046     ; Test case 46: Balanced Divide 8x8 - NEXT only, using Z80N op codes with 8-bit reciprocals
                     RET     NZ              ; If test failed, return
                     LD      A, 46           ; Test number
+                    CALL    PrintPassed
+                    CALL    TestCase047     ; Test case 47: Balanced Divide 16x8 - NEXT only, using Z80N op codes with 8-bit reciprocals
+                    RET     NZ              ; If test failed, return
+                    LD      A, 47           ; Test number
+                    CALL    PrintPassed
+                    CALL    TestCase048     ; Test case 48: Hybrid Divide 16x8 - NEXT only, using Z80N op codes
+                    RET     NZ              ; If test failed, return
+                    LD      A, 48           ; Test number
+                    CALL    PrintPassed
+                    CALL    TestCase049     ; Test case 49: Maximum Divide 16x8 - NEXT only, using Z80N op codes with 16-bit reciprocals
+                    RET     NZ              ; If test failed, return
+                    LD      A, 49           ; Test number
                     CALL    PrintPassed
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
                     JP      AllTestsPassed  ; If we reach here, all tests passed

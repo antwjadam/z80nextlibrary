@@ -15,6 +15,9 @@ StartAddress:   ; Main program entry point
                 
                 ; Run the test pack
                 CALL    RunTests
+
+                ; wait for any key before exiting the program
+                CALL    WaitForKey
                 
                 LD      SP, (OriginalStack)                ; Restore original stack pointer
                 RET
