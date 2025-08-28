@@ -2,6 +2,8 @@
                 DEVICE  ZXSPECTRUMNEXT
                 ORG     0x8000
 
+                INCLUDE "Constants.asm"                    ; Include the Constants definitions
+
 StartAddress:   ; Main program entry point
                 LD      (OriginalStack), SP                ; Save original stack pointer first
                 LD      SP, StackTop                       ; Set up our stack pointer
@@ -22,8 +24,20 @@ StartAddress:   ; Main program entry point
                 LD      SP, (OriginalStack)                ; Restore original stack pointer
                 RET
 
-VariablesEtc:   INCLUDE "Constants.asm"                    ; Include the Constants definitions
+
+TestPack:       INCLUDE "Testing/TestPackFramework.asm"    ; Include the Test Pack Framework entry points
+                INCLUDE "Testing/TestPackTests.asm"        ; Include the Test Pack Tests Executor
+                INCLUDE "Testing/TestCases.asm"            ; Include all test cases
+
                 INCLUDE "Variables.asm"                    ; Include the Variables definitions
+
+RandomHelpers:  INCLUDE "Random/Random8bit.asm"            ; Include 8-bit Random Number Generator - Unified
+                INCLUDE "Random/Random16bit.asm"           ; Include 16-bit Random Number Generator - Unified
+
+MathsHelpers:   INCLUDE "Divide/Divide8x8.asm"             ; Include Unified Divide 8-bit routines
+                INCLUDE "Divide/Divide16x8.asm"            ; Include Unified Divide 16x8 routines
+                INCLUDE "Multiply/Multiply8x8.asm"         ; Include Unified Multiply 8-bit routines
+                INCLUDE "Multiply/Multiply16x8.asm"        ; Include Unified Multiply 16-bit routines
 
 DisplayUtils:   INCLUDE "Display/ScreenClearing.asm"       ; Include the Screen Clearing routines
                 INCLUDE "Display/TextUtils.asm"            ; Include the Text Utils routines
@@ -32,19 +46,7 @@ DisplayUtils:   INCLUDE "Display/ScreenClearing.asm"       ; Include the Screen 
 KeysHelpers:    INCLUDE "Input/InputScanUtils.asm"         ; Include the Input scanning routines
                 INCLUDE "Input/WaitPlayerUtils.asm"        ; Include the Wait Player Interaction routines
 
-MathsHelpers:   INCLUDE "Divide/Divide8x8.asm"             ; Include Unified Divide 8-bit routines
-                INCLUDE "Divide/Divide16x8.asm"            ; Include Unified Divide 16x8 routines
-                INCLUDE "Multiply/Multiply8x8.asm"         ; Include Unified Multiply 8-bit routines
-                INCLUDE "Multiply/Multiply16x8.asm"        ; Include Unified Multiply 16-bit routines
-
-RandomHelpers:  INCLUDE "Random/Random8bit.asm"            ; Include 8-bit Random Number Generator - Unified
-                INCLUDE "Random/Random16bit.asm"           ; Include 16-bit Random Number Generator - Unified
-
 ScoreHelpers:   INCLUDE "Scoring/ScoresConvert.asm"        ; Include the 16bit score to display string routines
-
-TestPack:       INCLUDE "Testing/TestPackFramework.asm"    ; Include the Test Pack Framework entry points
-                INCLUDE "Testing/TestPackTests.asm"        ; Include the Test Pack Tests Executor
-                INCLUDE "Testing/TestCases.asm"            ; Include all test cases
 
 SaveNexFileOutput:
                 SAVENEX OPEN "Output/nextlibrary.nex", StartAddress

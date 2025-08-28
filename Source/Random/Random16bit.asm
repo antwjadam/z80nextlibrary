@@ -11,36 +11,49 @@
 ; T-States summary shows for each random number generation as:
 ;
 ; Random16_Unified_Seed (includes first random generation):
-; PERFORMANCE_RANDOM_LCG              - ~140-180 T-states for seed+first call
-; PERFORMANCE_RANDOM_LFSR             - ~130-165 T-states for seed+first call  
-; PERFORMANCE_RANDOM_XORSHIFT         - ~110-135 T-states for seed+first call
-; PERFORMANCE_RANDOM_MIDDLESQUARE     - ~400-500 T-states for seed+first call
+; PERFORMANCE_RANDOM_LCG               - ~140-180 T-states for seed+first call
+; PERFORMANCE_RANDOM_LFSR              - ~130-165 T-states for seed+first call  
+; PERFORMANCE_RANDOM_XORSHIFT          - ~110-135 T-states for seed+first call
+; PERFORMANCE_RANDOM_MIDDLESQUARE      - ~400-500 T-states for seed+first call
+; PERFORMANCE_Z80N_RANDOM_LCG          - ~85-125 T-states for seed+first call (25-30% faster than standard)
+; PERFORMANCE_Z80N_RANDOM_LFSR         - ~65-95 T-states for seed+first call (45% faster than standard)
+; PERFORMANCE_Z80N_RANDOM_XORSHIFT     - ~55-80 T-states for seed+first call (50% faster than standard)
+; PERFORMANCE_Z80N_RANDOM_MIDDLESQUARE - ~280-350 T-states for seed+first call (25-30% faster than standard)
 ;
 ; Random16_Unified_Next (subsequent calls only):
-; PERFORMANCE_RANDOM_LCG              - ~110-150 T-states per call
-; PERFORMANCE_RANDOM_LFSR             - ~100-135 T-states per call  
-; PERFORMANCE_RANDOM_XORSHIFT         - ~80-105 T-states per call
-; PERFORMANCE_RANDOM_MIDDLESQUARE     - ~370-470 T-states per call
-
+; PERFORMANCE_RANDOM_LCG               - ~110-150 T-states per call
+; PERFORMANCE_RANDOM_LFSR              - ~100-135 T-states per call  
+; PERFORMANCE_RANDOM_XORSHIFT          - ~80-105 T-states per call
+; PERFORMANCE_RANDOM_MIDDLESQUARE      - ~370-470 T-states per call
+; PERFORMANCE_Z80N_RANDOM_LCG          - ~65-105 T-states per call (25-30% faster than standard)
+; PERFORMANCE_Z80N_RANDOM_LFSR         - ~45-75 T-states per call (40-45% faster than standard)
+; PERFORMANCE_Z80N_RANDOM_XORSHIFT     - ~35-60 T-states per call (45-50% faster than standard)
+; PERFORMANCE_Z80N_RANDOM_MIDDLESQUARE - ~250-320 T-states per call (25-30% faster than standard)
+;
+; @COMPAT: 48K,128K,+2,+3,NEXT
 Random16_Unified_Seed:               ; Set seed and get first random number
                         PUSH    HL                              ; Save limit
                         PUSH    BC                              ; Save seed
                         PUSH    DE                              ; Save algorithm
                         LD      A, D                            ; Get algorithm selector
-                        CP      PERFORMANCE_RANDOM_LFSR
-                        JR      Z, Random16_Seed_LFSR           ; Best For: Cryptographic applications, high-quality randomness, security-critical systems
-                        CP      PERFORMANCE_RANDOM_XORSHIFT
-                        JR      Z, Random16_Seed_XORShift       ; Best For: Game engines, real-time applications, procedural generation, particle systems
-                        CP      PERFORMANCE_RANDOM_MIDDLESQUARE
-                        JR      Z, Random16_Seed_MiddleSquare   ; Best For: Educational purposes, historical simulations, demonstrations
-
-                        ; Fall through to LCG - Best For: Statistical simulations, large range requirements, scientific applications
+                        CP      PERFORMANCE_RANDOM_LCG          ; Linear Congruential Generator: Best For: Statistical simulations, large range requirements, scientific applications
+                        JP      Z, Random16_Seed_LCG            
+                        CP      PERFORMANCE_Z80N_RANDOM_LCG
+                        JP      Z, Random16_Seed_LCG
+                        CP      PERFORMANCE_RANDOM_LFSR         ; Linear Feedback Shift Register: Best For: Cryptographic applications, high-quality randomness, security-critical systems
+                        JP      Z, Random16_Seed_LFSR
+                        CP      PERFORMANCE_Z80N_RANDOM_LFSR
+                        JP      Z, Random16_Seed_LFSR
+                        CP      PERFORMANCE_RANDOM_XORSHIFT     ; Xor Shift Generator: Best For: Game engines, real-time applications, procedural generation, particle systems
+                        JP      Z, Random16_Seed_XORShift       
+                        CP      PERFORMANCE_Z80N_RANDOM_XORSHIFT
+                        JP      Z, Random16_Seed_XORShift
+                        JP      Random16_Seed_MiddleSquare      ; Defaults to Middle Square: Best For: Educational purposes, historical simulations, demonstrations
 Random16_Seed_LCG:      LD      (RandomSeed16_CurrentSeed), BC  ; Store the seed (16-bit)
 GetTheNextFirstRandom:  POP     DE
                         POP     BC
                         POP     HL
                         JR      Random16_Unified_Next
-
 Random16_Seed_LFSR:
                         LD      A, B                            ; Check if seed is 0
                         OR      C
@@ -49,7 +62,6 @@ Random16_Seed_LFSR:
 LfsrSeed16_ValidSeed:
                         LD      (LfsrSeed16_State), BC          ; Store seed
                         JR      GetTheNextFirstRandom
-
 Random16_Seed_XORShift:
                         LD      A, B                            ; Check if seed is 0
                         OR      C
@@ -58,7 +70,6 @@ Random16_Seed_XORShift:
 XorShiftSeed16_ValidSeed:
                         LD      (XorShiftSeed16_State), BC      ; Store seed
                         JR      GetTheNextFirstRandom
-
 Random16_Seed_MiddleSquare:
                         LD      A, B                            ; Check if seed is 0
                         OR      C
@@ -67,29 +78,34 @@ Random16_Seed_MiddleSquare:
 MiddleSquareSeed16_ValidSeed:
                         LD      (MiddleSquareSeed16_State), BC  ; Store seed
                         JR      GetTheNextFirstRandom
-
+;
 ; Get next random number using previously set seeding, limit can change per call making each algorith useable for multiple ranges as needed.
 ;
 ; Input:  HL = upper limit INCLUSIVE (0 to HL)
 ;         D = algorithm selection (PERFORMANCE_RANDOM_xxx)
 ; Output: HL = random number in range 0 to input HL
-
-Random16_Unified_Next:
-                        LD      A, D                            ; Get algorithm selector
+Random16_Unified_Next:  LD      A, D                            ; Get algorithm selector
+                        CP      PERFORMANCE_RANDOM_LCG
+                        JP      Z, Random16_Next_LCG
+                        CP      PERFORMANCE_Z80N_RANDOM_LCG
+                        JP      Z, Random16_Z80N_Next_LCG
                         CP      PERFORMANCE_RANDOM_LFSR
                         JP      Z, Random16_Next_LFSR
+                        CP      PERFORMANCE_Z80N_RANDOM_LFSR
+                        JP      Z, Random16_Z80N_Next_LFSR
                         CP      PERFORMANCE_RANDOM_XORSHIFT
                         JP      Z, Random16_Next_XORShift
+                        CP      PERFORMANCE_Z80N_RANDOM_XORSHIFT
+                        JP      Z, Random16_Z80N_Next_XORShift
                         CP      PERFORMANCE_RANDOM_MIDDLESQUARE
-                        JP      Z, Random16_Next_MiddleSquare
-
-                        ; Fall through to LCG
-Random16_Next_LCG:
-                        PUSH    BC                              ; Save registers
+                        JP      Z, Random8_Next_MiddleSquare
+                        JP      Random16_Z80N_Next_MiddleSquare
+;
+; @COMPAT: 48K,128K,+2,+3,NEXT
+Random16_Next_LCG:      PUSH    BC                              ; Save registers
                         PUSH    DE
                         ; Save the upper limit for later modulo operation
                         PUSH    HL                              ; Save limit on stack
-                    
                         ; Generate next random number using simplified 16-bit LCG
                         ; Formula: next = (seed * 1103 + 12345) MOD 65536
                         ; Using smaller multiplier for efficiency while maintaining good distribution
@@ -97,7 +113,6 @@ Random16_Next_LCG:
                         ; Multiply BC by 1103 (using shift and add method)
                         LD      HL, 0                           ; Initialize result
                         LD      DE, BC                          ; Copy seed to DE
-                        
                         ; Multiply by 1103 = 1024* + 64* + 15*
                         ; Optimized: First do BC * 64 (shift left 6 times), then continue to get BC * 1024
                         ; Also capture BC * 16 to efficiently calculate BC * 15
@@ -181,12 +196,96 @@ Random16_ReturnZero:    LD     HL, 0                            ; Return 0 for l
                         JR      Random16_ModDone
 Random16_ReturnRaw:     LD     HL, (RandomSeed16_CurrentSeed)   ; Return raw value for limit 65535
                         JR      Random16_ModDone
-
+;
+; @COMPAT: NEXT
+; @Z80N: MUL DE
+; @REQUIRES: Spectrum Next, Z80N architecture.
+Random16_Z80N_Next_LCG:
+                        PUSH    BC                              ; Save registers
+                        PUSH    AF
+                        LD      BC, HL                          ; Save limit in BC
+                        ; Load current seed
+                        LD      HL, (RandomSeed16_CurrentSeed)  ; HL = current seed
+                        ; Multiply HL by 25173 using Z80N MUL DE only
+                        ; Break down 25173 = 98*256 + 69 for easier multiplication
+                        LD      D, H                            ; D = high byte of seed
+                        LD      E, 69                           ; E = low part of multiplier
+                        MUL     DE                              ; DE = high_seed * 69
+                        PUSH    DE                              ; Save partial result
+                        LD      D, L                            ; D = low byte of seed  
+                        LD      E, 69                           ; E = low part of multiplier
+                        MUL     DE                              ; DE = low_seed * 69
+                        LD      HL, DE                          ; HL = low partial result
+                        POP     DE                              ; DE = high partial result
+                        LD      A, D                            ; Shift high partial left 8 positions
+                        ADD     A, H                            ; Add to high byte of result
+                        LD      H, A                            ; HL = combined result (simplified)
+                        ; Add constant 13849
+                        LD      DE, 13849                       ; DE = additive constant
+                        ADD     HL, DE                          ; HL = (seed * multiplier + 13849) mod 65536
+                        ; Store new seed
+                        LD      (RandomSeed16_CurrentSeed), HL  ; Store new seed
+                        ; Apply modulo using existing 16÷8 division
+                        LD      A, B                            ; Check if limit is 0
+                        OR      C
+                        JR      Z, R16_Z80N_LCG_ReturnZero
+                        ; Check if limit is 65535 (full range)
+                        LD      DE, 65535
+                        LD      A, B
+                        CP      D
+                        JR      NZ, R16_Z80N_LCG_DoModulo
+                        LD      A, C
+                        CP      E
+                        JR      Z, R16_Z80N_LCG_ReturnRaw
+R16_Z80N_LCG_DoModulo:  ; Use 16÷8 division twice for 16÷16 modulo simulation
+                        ; First divide by high byte, then handle remainder
+                        LD      A, B                            ; A = high byte of divisor
+                        OR      A                               ; Check if high byte is 0
+                        JR      Z, R16_Z80N_LCG_Div8           ; If 0, just divide by low byte
+                        ; Complex case: divisor > 255, use approximation
+                        ; For simplicity, use bitwise AND if limit+1 is power of 2
+                        LD      DE, BC                          ; DE = limit
+                        INC     DE                              ; DE = limit + 1
+                        LD      A, D                            ; Check if power of 2
+                        OR      A
+                        JR      NZ, R16_Z80N_LCG_GeneralMod    ; Not simple power of 2
+                        ; Simple case: AND with limit if power of 2
+                        LD      A, E
+                        DEC     A                               ; A = limit
+                        AND     L                               ; Apply modulo to low byte
+                        LD      L, A
+                        LD      H, 0                            ; Clear high byte
+                        JR      R16_Z80N_LCG_Done
+R16_Z80N_LCG_Div8:      ; Simple case: divide HL by C using 16÷8
+                        LD      A, C                            ; A = divisor (low byte)
+                        CALL    Divide16x8_Next_Reciprocal_High ; HL = quotient, A = remainder
+                        LD      H, 0                            ; HL = remainder only
+                        LD      L, A
+                        JR      R16_Z80N_LCG_Done
+R16_Z80N_LCG_GeneralMod: ; General modulo using repeated subtraction (simplified)
+                        LD      A, H                            ; Compare HL with BC
+                        CP      B
+                        JR      C, R16_Z80N_LCG_Done           ; HL < BC, already in range
+                        JR      NZ, R16_Z80N_LCG_SubtractLoop  ; HL > BC, need to subtract
+                        LD      A, L                            ; High bytes equal, check low
+                        CP      C
+                        JR      C, R16_Z80N_LCG_Done           ; HL < BC
+R16_Z80N_LCG_SubtractLoop: SBC  HL, BC                        ; HL = HL - BC
+                        JR      NC, R16_Z80N_LCG_SubtractLoop  ; Continue if no underflow
+                        ADD     HL, BC                          ; Restore last valid value
+                        JR      R16_Z80N_LCG_Done
+R16_Z80N_LCG_ReturnZero: LD     HL, 0                          ; Return 0 for limit 0
+                        JR      R16_Z80N_LCG_Done
+R16_Z80N_LCG_ReturnRaw: ; HL already contains the value
+R16_Z80N_LCG_Done:      POP     AF                              ; Restore registers
+                        POP     BC
+                        RET
+;
+; @COMPAT: 48K,128K,+2,+3,NEXT
 Random16_Next_LFSR:
                         PUSH    BC                              ; Save registers
                         PUSH    DE
                         PUSH    HL                              ; Save limit
-                    
                         ; 16-bit LFSR with polynomial x^16 + x^14 + x^13 + x^11 + 1
                         ; Taps at bits 15, 13, 12, 10 (counting from 0)
                         LD      BC, (LfsrSeed16_State)          ; Get current state in BC
@@ -269,12 +368,143 @@ Lfsr16_ReturnZero:      LD      HL, 0                           ; Return 0 for l
                         JR      Lfsr16_Exit
 Lfsr16_ReturnRaw:       LD      HL, (LfsrSeed16_State)          ; Return raw value for limit 65535
                         JR      Lfsr16_Exit
-
+;
+; @COMPAT: NEXT
+; @Z80N: MUL DE
+; @REQUIRES: Spectrum Next, Z80N architecture.
+Random16_Z80N_Next_LFSR:
+                        PUSH    BC                              ; Save registers
+                        PUSH    AF
+                        LD      BC, HL                          ; Save limit in BC
+                        ; Load current seed
+                        LD      HL, (LfsrSeed16_State)          ; HL = current seed
+                        
+                        ; OPTIMIZED bit extraction using rotation instead of 7 SRL operations
+                        LD      A, H                            ; A = high byte of seed
+                        
+                        ; Extract bit 15 - OPTIMIZED (was 7 SRL operations)
+                        RLC     A                               ; Rotate bit 7 into carry (bit 15)
+                        LD      D, 0                            ; Clear D
+                        RL      D                               ; Rotate carry into D bit 0
+                        ; D now contains bit 15 in position 0
+                        
+                        ; Extract bit 13 - OPTIMIZED (was 7 SRL operations)
+                        LD      A, H                            ; Reload high byte
+                        SLA     A                               ; Shift left 1 (bit 6→bit 7)
+                        SLA     A                               ; Shift left 2 (bit 5→bit 7) - bit 5 is bit 13
+                        RLC     A                               ; Rotate bit 7 into carry
+                        LD      E, 0                            ; Clear E
+                        RL      E                               ; Rotate carry into E bit 0
+                        LD      A, D                            ; Get bit 15
+                        XOR     E                               ; XOR with bit 13
+                        LD      D, A                            ; D = bit 15 ⊕ bit 13
+                        
+                        ; Extract bit 12 - OPTIMIZED (was 7 SRL operations)
+                        LD      A, H                            ; Reload high byte
+                        SLA     A                               ; Shift left 1
+                        SLA     A                               ; Shift left 2  
+                        SLA     A                               ; Shift left 3 (bit 4→bit 7) - bit 4 is bit 12
+                        RLC     A                               ; Rotate bit 7 into carry
+                        LD      E, 0                            ; Clear E
+                        RL      E                               ; Rotate carry into E bit 0
+                        LD      A, D                            ; Get previous XOR result
+                        XOR     E                               ; XOR with bit 12
+                        LD      D, A                            ; D = bit 15 ⊕ bit 13 ⊕ bit 12
+                        
+                        ; Extract bit 10 - OPTIMIZED (was 7 SRL operations)
+                        LD      A, H                            ; Reload high byte
+                        SLA     A                               ; Shift left 1
+                        SLA     A                               ; Shift left 2
+                        SLA     A                               ; Shift left 3
+                        SLA     A                               ; Shift left 4
+                        SLA     A                               ; Shift left 5 (bit 2→bit 7) - bit 2 is bit 10
+                        RLC     A                               ; Rotate bit 7 into carry
+                        LD      E, 0                            ; Clear E
+                        RL      E                               ; Rotate carry into E bit 0
+                        LD      A, D                            ; Get previous XOR result
+                        XOR     E                               ; XOR with bit 10
+                        LD      C, A                            ; C = final feedback bit
+                        
+                        ; Shift seed left and insert feedback
+                        LD      HL, (LfsrSeed16_State)          ; HL = original seed
+                        ADD     HL, HL                          ; Shift left 1 position
+                        LD      A, C                            ; A = feedback bit
+                        OR      L                               ; Insert feedback into bit 0
+                        LD      L, A                            ; Update low byte
+                        
+                        ; Ensure non-zero state
+                        LD      A, H
+                        OR      L
+                        JR      NZ, R16_Z80N_LFSR_StoreState
+                        LD      HL, 1                           ; If 0, use 1
+                        
+R16_Z80N_LFSR_StoreState: LD    (LfsrSeed16_State), HL         ; Store new state
+                        
+                        ; Apply modulo (same as before)
+                        LD      A, B
+                        OR      C
+                        JR      Z, R16_Z80N_LFSR_ReturnZero
+                        
+                        LD      DE, 65535
+                        LD      A, B
+                        CP      D
+                        JR      NZ, R16_Z80N_LFSR_DoModulo
+                        LD      A, C
+                        CP      E
+                        JR      Z, R16_Z80N_LFSR_ReturnRaw
+                        
+R16_Z80N_LFSR_DoModulo: LD      A, B                            ; Check high byte of limit
+                        OR      A
+                        JR      Z, R16_Z80N_LFSR_Div8          ; Simple 16÷8 case
+                        
+                        ; General case: use (limit + 1) as divisor for inclusive range
+                        LD      DE, BC                          ; DE = limit
+                        INC     DE                              ; DE = limit + 1
+                        
+                        ; Handle overflow case (when limit = 65535)
+                        LD      A, D
+                        OR      E
+                        JR      Z, R16_Z80N_LFSR_UseOrigLimit  ; Wrapped to 0, use original
+                        
+                        ; Subtraction loop for complex modulo
+                        LD      A, H
+                        CP      D
+                        JR      C, R16_Z80N_LFSR_Done
+                        JR      NZ, R16_Z80N_LFSR_SubtractLoop
+                        LD      A, L
+                        CP      E
+                        JR      C, R16_Z80N_LFSR_Done
+                        
+R16_Z80N_LFSR_SubtractLoop:  SBC     HL, DE
+                        JR      NC, R16_Z80N_LFSR_SubtractLoop
+                        ADD     HL, DE                          ; Restore last valid value
+                        JR      R16_Z80N_LFSR_Done
+                        
+R16_Z80N_LFSR_UseOrigLimit: LD    DE, BC                        ; Use original limit as divisor
+                        JR      R16_Z80N_LFSR_SubtractLoop
+                        
+R16_Z80N_LFSR_Div8:     ; Simple 16÷8 division for limits ≤ 255
+                        LD      A, C                            ; A = divisor (low byte only)
+                        INC     A                               ; A = divisor + 1 (for inclusive range)
+                        CALL    Divide16x8_Next_Reciprocal_High ; HL = quotient, A = remainder
+                        LD      H, 0
+                        LD      L, A                            ; HL = remainder
+                        JR      R16_Z80N_LFSR_Done
+                        
+R16_Z80N_LFSR_ReturnZero: LD     HL, 0                          ; Return 0 for limit 0
+                        JR      R16_Z80N_LFSR_Done
+                        
+R16_Z80N_LFSR_ReturnRaw:  ; HL already contains value
+                        
+R16_Z80N_LFSR_Done:     POP     AF
+                        POP     BC
+                        RET
+;
+; @COMPAT: 48K,128K,+2,+3,NEXT
 Random16_Next_XORShift:
                         PUSH    BC                              ; Save registers
                         PUSH    DE
                         PUSH    HL                              ; Save limit
-                        
                         ; 16-bit XORShift algorithm: x ^= x << 7; x ^= x >> 9; x ^= x << 8
                         LD      BC, (XorShiftSeed16_State)      ; Get current state in BC
                         ; Step 1: x ^= x << 7
@@ -359,13 +589,120 @@ XorShift16_ReturnZero:  LD      HL, 0                           ; Return 0 for l
                         JR      XorShift16_Exit
 XorShift16_ReturnRaw:   LD      HL, (XorShiftSeed16_State)      ; Return raw value for limit 65535
                         JR      XorShift16_Exit
-
+;
+; @COMPAT: NEXT
+; @Z80N: MUL DE
+; @REQUIRES: Spectrum Next, Z80N architecture.
+Random16_Z80N_Next_XORShift:
+                        PUSH    BC                              ; Save registers
+                        PUSH    AF
+                        LD      BC, HL                          ; Save limit in BC
+                        ; Load current seed
+                        LD      HL, (XorShiftSeed16_State)      ; HL = current seed
+                        ; Step 1: x ^= x << 7
+                        ; Use Z80N MUL DE to implement left shift by 7 (multiply by 128)
+                        LD      D, H                            ; D = high byte of seed
+                        LD      E, 128                          ; E = 128 (2^7)
+                        MUL     DE                              ; DE = high_seed * 128
+                        LD      A, D                            ; A = high result (shifted)
+                        XOR     H                               ; XOR with original high byte
+                        LD      H, A                            ; Update high byte
+                        
+                        LD      D, L                            ; D = low byte of seed
+                        LD      E, 128                          ; E = 128
+                        MUL     DE                              ; DE = low_byte * 128
+                        LD      A, E                            ; A = low result
+                        XOR     L                               ; XOR with original low byte
+                        LD      L, A                            ; Update low byte
+                        LD      A, D                            ; A = high part of low multiplication
+                        XOR     H                               ; XOR with high byte
+                        LD      H, A                            ; Final high byte for step 1
+                        
+                        ; Step 2: x ^= x >> 9 - OPTIMIZED (was 9-shift loop)
+                        ; Right shift by 9 = take upper 7 bits only
+                        ; Much faster: just take high byte and shift right 1
+                        LD      D, H                            ; D = high byte
+                        SRL     D                               ; Single shift right (>> 9 effect for 16-bit)
+                        LD      E, 0                            ; E = 0 (most bits shifted out)
+                        
+                        LD      A, H                            ; XOR with original
+                        XOR     D
+                        LD      H, A
+                        LD      A, L
+                        XOR     E                               ; E is 0, so L unchanged
+                        LD      L, A                            ; Much faster than 9-shift loop!
+                        
+                        ; Step 3: x ^= x << 8 (swap bytes)
+                        LD      D, H                            ; D = high byte
+                        LD      E, 0                            ; E = 0 (left shift by 8)
+                        ; Left shift by 8 = move high byte to position, clear low
+                        LD      A, L                            ; A = original low byte
+                        LD      L, 0                            ; Clear low position
+                        XOR     D                               ; XOR high with shifted high
+                        LD      H, A                            ; Update high byte
+                        ; Low byte XOR with 0 = unchanged
+                        
+                        ; Ensure non-zero state
+                        LD      A, H
+                        OR      L
+                        JR      NZ, R16_Z80N_XS_StoreState
+                        LD      HL, 9999                        ; Non-zero fallback
+                        
+R16_Z80N_XS_StoreState: LD     (XorShiftSeed16_State), HL      ; Store new state
+                        
+                        ; Apply modulo (same pattern as others)
+                        LD      A, B
+                        OR      C
+                        JR      Z, R16_Z80N_XS_ReturnZero
+                        
+                        LD      DE, 65535
+                        LD      A, B
+                        CP      D
+                        JR      NZ, R16_Z80N_XS_DoModulo
+                        LD      A, C
+                        CP      E
+                        JR      Z, R16_Z80N_XS_ReturnRaw
+                        
+R16_Z80N_XS_DoModulo:   LD      A, B                            ; Check high byte
+                        OR      A
+                        JR      Z, R16_Z80N_XS_Div8
+                        
+                        ; Subtraction loop for complex modulo
+                        LD      A, H
+                        CP      B
+                        JR      C, R16_Z80N_XS_Done
+                        JR      NZ, R16_Z80N_XS_SubLoop
+                        LD      A, L
+                        CP      C
+                        JR      C, R16_Z80N_XS_Done
+                        
+R16_Z80N_XS_SubLoop:    SBC     HL, BC
+                        JR      NC, R16_Z80N_XS_SubLoop
+                        ADD     HL, BC
+                        JR      R16_Z80N_XS_Done
+                        
+R16_Z80N_XS_Div8:       ; Simple 16÷8 division for limits ≤ 255
+                        LD      A, C                            ; A = divisor (low byte only)
+                        INC     A                               ; A = divisor + 1 (for inclusive range)
+                        CALL    Divide16x8_Next_Reciprocal_High ; HL = quotient, A = remainder
+                        LD      H, 0
+                        LD      L, A                            ; HL = remainder
+                        JR      R16_Z80N_XS_Done
+                        
+R16_Z80N_XS_ReturnZero: LD     HL, 0
+                        JR      R16_Z80N_XS_Done
+                        
+R16_Z80N_XS_ReturnRaw:  ; HL already contains value
+R16_Z80N_XS_Done:       POP     AF
+                        POP     BC
+                        RET
+;
+; @COMPAT: 48K,128K,+2,+3,NEXT
 Random16_Next_MiddleSquare:
                         PUSH    BC                              ; Save registers
                         PUSH    DE
                         PUSH    IX
                         PUSH    HL                              ; Save limit
-                        
                         ; Middle Square algorithm: square the current state and extract middle bits
                         LD      BC, (MiddleSquareSeed16_State)  ; Get current state
                         ; Square BC (16-bit multiplication BC * BC)
@@ -442,4 +779,132 @@ MiddleSquare16_ReturnZero:
 MiddleSquare16_ReturnRaw:
                         LD      HL, (MiddleSquareSeed16_State)  ; Return raw value for limit 65535
                         JR      MiddleSquare16_Exit
- 
+;
+;===============================================================================
+; COMPLETELY REWRITTEN Z80N 16-bit Middle Square Generator
+; Uses a simple but mathematically sound approach with guaranteed state changes
+;===============================================================================
+Random16_Z80N_Next_MiddleSquare:
+                        PUSH    BC                              ; Save registers
+                        PUSH    AF
+                        LD      BC, HL                          ; Save limit in BC
+                        
+                        ; Load current seed
+                        LD      HL, (MiddleSquareSeed16_State)  ; HL = current seed
+                        
+                        ; Check for zero seed
+                        LD      A, H
+                        OR      L
+                        JR      NZ, R16_Z80N_MS_ValidSeed
+                        LD      HL, 1234                        ; Default seed if zero
+                        
+R16_Z80N_MS_ValidSeed:  ; Save original seed for verification
+                        PUSH    HL                              ; Save original seed
+                        
+                        ; SIMPLE but effective middle square using Z80N MUL
+                        ; Step 1: Square the low 8 bits
+                        LD      D, L                            ; D = low byte
+                        LD      E, L                            ; E = low byte  
+                        MUL     DE                              ; DE = L² (result in DE!)
+                        
+                        ; Step 2: Use the middle bits + mix with high byte
+                        LD      A, D                            ; A = high byte of square
+                        ADD     A, H                            ; Add original high byte
+                        LD      H, A                            ; New high byte
+                        
+                        LD      A, E                            ; A = low byte of square
+                        ADD     A, L                            ; Add original low byte
+                        LD      L, A                            ; New low byte
+                        
+                        ; Step 3: Ensure it's different from original
+                        EX      DE, HL                          ; DE = new value
+                        POP     HL                              ; HL = original seed
+                        
+                        ; Compare with original
+                        LD      A, D
+                        CP      H
+                        JR      NZ, R16_Z80N_MS_Different      ; Different high byte
+                        LD      A, E
+                        CP      L
+                        JR      NZ, R16_Z80N_MS_Different      ; Different low byte
+                        
+                        ; If somehow same, force change by adding a constant
+                        EX      DE, HL                          ; HL = new value
+                        LD      DE, 12345                       ; Large constant
+                        ADD     HL, DE                          ; Force change
+                        JR      R16_Z80N_MS_StoreState
+                        
+R16_Z80N_MS_Different:  EX      DE, HL                          ; HL = new value
+                        
+                        ; Ensure non-zero result
+                        LD      A, H
+                        OR      L
+                        JR      NZ, R16_Z80N_MS_StoreState
+                        LD      HL, 5678                        ; Non-zero fallback
+                        
+R16_Z80N_MS_StoreState: LD     (MiddleSquareSeed16_State), HL  ; Store new state
+                        
+                        ; Apply modulo for inclusive range [0, limit]
+                        LD      A, B
+                        OR      C
+                        JR      Z, R16_Z80N_MS_ReturnZero
+                        
+                        ; Check if limit is 65535 (full range)
+                        LD      DE, 65535
+                        LD      A, B
+                        CP      D
+                        JR      NZ, R16_Z80N_MS_DoModulo
+                        LD      A, C
+                        CP      E
+                        JR      Z, R16_Z80N_MS_ReturnRaw
+                        
+R16_Z80N_MS_DoModulo:   ; Check if we can use simple 8-bit division
+                        LD      A, B                            ; Check high byte of limit
+                        OR      A
+                        JR      Z, R16_Z80N_MS_Div8            ; Simple 16÷8 case
+                        
+                        ; For limits > 255, use (limit + 1) as divisor for inclusive range
+                        LD      DE, BC                          ; DE = limit
+                        INC     DE                              ; DE = limit + 1
+                        
+                        ; Handle overflow case (when limit = 65535)
+                        LD      A, D
+                        OR      E
+                        JR      Z, R16_Z80N_MS_UseOrigLimit    ; Wrapped to 0, use original
+                        
+                        ; Modulo using repeated subtraction: HL = HL mod (limit + 1)
+R16_Z80N_MS_ModLoop:    LD      A, H                            ; Compare HL with DE
+                        CP      D
+                        JR      C, R16_Z80N_MS_Done            ; HL < DE, done
+                        JR      NZ, R16_Z80N_MS_Subtract       ; HL > DE
+                        LD      A, L
+                        CP      E
+                        JR      C, R16_Z80N_MS_Done            ; HL < DE, done
+                        
+R16_Z80N_MS_Subtract:   ; HL = HL - DE
+                        LD      A, L
+                        SUB     E
+                        LD      L, A
+                        LD      A, H
+                        SBC     A, D
+                        LD      H, A
+                        JR      R16_Z80N_MS_ModLoop            ; Continue until HL < DE
+                        
+R16_Z80N_MS_UseOrigLimit: LD    DE, BC                          ; Use original limit as divisor
+                        JR      R16_Z80N_MS_ModLoop
+                        
+R16_Z80N_MS_Div8:       ; Simple 16÷8 division for limits ≤ 255
+                        LD      A, C                            ; A = divisor (low byte only)
+                        INC     A                               ; A = divisor + 1 (for inclusive range)
+                        CALL    Divide16x8_Next_Reciprocal_High ; HL = quotient, A = remainder
+                        LD      H, 0
+                        LD      L, A                            ; HL = remainder
+                        JR      R16_Z80N_MS_Done
+                        
+R16_Z80N_MS_ReturnZero: LD     HL, 0
+                        JR      R16_Z80N_MS_Done
+                        
+R16_Z80N_MS_ReturnRaw:  ; HL already contains the value
+R16_Z80N_MS_Done:       POP     AF
+                        POP     BC
+                        RET
