@@ -47,3 +47,7 @@
                 INCLUDE "TestCase047.asm"  ; Divide 16x8 - PERFORMANCE_NEXT_BALANCED - NEXT only, using Z80N op codes, 8-bit reciprocal table
                 INCLUDE "TestCase048.asm"  ; Divide 16x8 - PERFORMANCE_NEXT_COMPACT - NEXT only, using Z80N op codes. traditional methods
                 INCLUDE "TestCase049.asm"  ; Divide 16x8 - PERFORMANCE_NEXT_MAXIMUM - NEXT only, using Z80N op codes, 16-bit reciprocal table
+                INCLUDE "TestCase050.asm"  ; Random 8-bit LCG for Next Only, using Z80N op codes
+                INCLUDE "TestCase051.asm"  ; Random 8-bit XOR for Next Only, using Z80N op codes
+                INCLUDE "TestCase052.asm"  ; Random 8-bit LFSR for Next Only, using Z80N op codes
+                INCLUDE "TestCase053.asm"  ; Random 8-bit Middle Square for Next Only, using Z80N op codes

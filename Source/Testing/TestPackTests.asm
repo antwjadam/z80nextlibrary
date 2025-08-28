@@ -217,4 +217,21 @@ TestPackTests:      LD      A, 0x07                            ; Set default att
                     LD      A, 49           ; Test number
                     CALL    PrintPassed
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+                    CALL    TestCase050     ; Test case 50: Random number generator validation LCG for Next, Z80N opcodes used for performance.
+                    RET     NZ              ; If test failed, return
+                    LD      A, 50           ; Test number
+                    CALL    PrintPassed
+                    CALL    TestCase051     ; Test case 51: Random number generator validation XORShift for Next, Z80N opcodes used for performance.
+                    RET     NZ              ; If test failed, return
+                    LD      A, 51           ; Test number
+                    CALL    PrintPassed
+                    CALL    TestCase052     ; Test case 52: LFSR random number generator for Next, Z80N opcodes used for performance.
+                    RET     NZ              ; If test failed, return
+                    LD      A, 52           ; Test number
+                    CALL    PrintPassed
+                    CALL    TestCase053     ; Test case 53: Random 8-bit Middle Square for Next, Z80N opcodes used for performance.
+                    RET     NZ              ; If test failed, return
+                    LD      A, 53           ; Test number
+                    CALL    PrintPassed
+; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
                     JP      AllTestsPassed  ; If we reach here, all tests passed
