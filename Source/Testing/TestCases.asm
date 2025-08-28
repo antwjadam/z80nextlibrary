@@ -51,3 +51,7 @@
                 INCLUDE "TestCase051.asm"  ; Random 8-bit XOR for Next Only, using Z80N op codes
                 INCLUDE "TestCase052.asm"  ; Random 8-bit LFSR for Next Only, using Z80N op codes
                 INCLUDE "TestCase053.asm"  ; Random 8-bit Middle Square for Next Only, using Z80N op codes
+                INCLUDE "TestCase054.asm"  ; Random 16-bit LCG for Next Only, using Z80N op codes
+                INCLUDE "TestCase055.asm"  ; Random 16-bit LFSR for Next Only, using Z80N op codes
+                INCLUDE "TestCase056.asm"  ; Random 16-bit Xor Shift for Next Only, using Z80N op codes
+                INCLUDE "TestCase057.asm"  ; Random 16-bit Middle Square for Next Only, using Z80N op codes

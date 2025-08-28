@@ -312,7 +312,21 @@ R8_Z80N_LFSR_Process:       ; We'll use Z80N MUL to accelerate the bit extractio
                             OR      B                           ; A = new seed with feedback bit
                             ; Store new seed and return
                             LD      (LfsrSeed8_State), A        ; Store new seed
-                            JP      Lfsr8Modulo
+                            ; Apply modulo for range - INLINE instead of JP
+                            POP     BC                          ; Restore BC first!
+                            LD      A, B                        ; Get limit
+                            OR      A                           ; Check if 0
+                            JR      Z, R8_Z80N_LFSR_ReturnZero
+                            INC     A                           ; Make inclusive
+                            LD      B, A                        ; B = divisor
+                            LD      A, (LfsrSeed8_State)        ; Get random value
+                            
+R8_Z80N_LFSR_ModLoop:       CP      B                           ; Compare with limit + 1
+                            JR      C, R8_Z80N_LFSR_Done        ; If < limit+1, done
+                            SUB     B                           ; Subtract limit+1
+                            JR      R8_Z80N_LFSR_ModLoop        ; Continue
+R8_Z80N_LFSR_ReturnZero:    XOR     A                           ; Return 0 for limit 0
+R8_Z80N_LFSR_Done:          RET                                 ; Return properly
 
 ; Get next random number using XOR Shift algorithm
 ;

@@ -6,16 +6,34 @@
 
 **A high-performance, utility library for Z80 assembly development on the ZX Spectrum and ZX Spectrum Next platforms. The choice is yours, you can use device independent routines or limit yourself to platform specific functionality.**
 
-NextLibrary provides world-class mathematical operations, random number generation, and utility functions optimized for retro game development and system programming. It offers hardware independent routines that work on both Spectrum and Spectrum Next hardware and optimised Next only versions making use of Z80N Next only extended op code.
+NextLibrary provides world-class mathematical operations, random number generation, and utility functions optimized for retro game development and system programming.
 
-As I extend this library over time (see the TODO list), I will first share the device independent routines and then will on a subsequent push will add the Z80N optimised routines.
+It offers hardware independent routines that work on both Spectrum and Spectrum Next hardware coupled by optimised Next only versions making use of Z80N Next only extended op codes for best performance.
 
-## Latest Updates
+As I work on this library, I will first share the device independent routines and then will on a subsequent push will add the Z80N optimised routines.
 
-**v1.3** - Enhanced Random 8-bit Operations with Z80N Support targetting Spectrum Next use.
+## Release History
+
+**v1.4** - Enhanced 16-bit Random Operations with Z80N Support
+
+Key improvements:
+- **57 Test Cases**: Expanded test suite from 53 to 57 comprehensive test cases
+- **16-bit Random Algorithms**: Complete suite of 16-bit random number generators (LFSR, XOR Shift, Middle Square) with both standard Z80 and Z80N optimized versions
+- **Z80N 16-bit Random Performance**: 33-38% faster 16-bit random generation using MUL instruction
+- **Hardware-Accelerated 16-bit Random**: Single-cycle multiplication for enhanced Middle Square, optimized bit operations for LFSR/XOR Shift
+- **Seed Compatibility**: Z80N 16-bit random versions maintain identical output sequences to standard algorithms
+- **Complete T-state Analysis**: Accurate performance benchmarks for all random number generation routines
+
+**v1.3** - Enhanced Random 8-bit Operations with Z80N Support
+
+Key improvements:
+- **53 Test Cases**: Expanded test suite from 43 to 53 comprehensive test cases
+- **8-bit Random Algorithms**: Four standard Z80 algorithms (LCG, LFSR, XOR Shift, Middle Square) plus four Z80N optimized versions
+- **Z80N 8-bit Random Performance**: 20-47% faster random generation using MUL instruction
+- **Hardware-Accelerated Random**: Single-cycle multiplication for LCG, optimized bit operations for LFSR/XorShift/MiddleSquare
+- **Seed Compatibility**: Z80N random versions maintain identical output sequences to standard algorithms
+
 **v1.2** - Enhanced Division Operations with Z80N Support
-
-The most recent update provides comprehensive division utilizing Z80N for additional Spectrum Next optimization options with validated accuracy.
 
 Key improvements:
 - **50 Test Cases**: Expanded test suite from 43 to 50 comprehensive test cases
@@ -25,9 +43,10 @@ Key improvements:
 - **Performance Optimization**: Up to 95% faster division on Spectrum Next hardware
 - **Algorithm Selection**: Intelligent hybrid approaches combining traditional and reciprocal methods for optimal speed/precision balance
 
-Two primary division approaches are provided:
+Three primary Z80N division approaches are provided:
 1. **Hybrid routines**: Combination of MUL DE and traditional subtraction for optimal convergence  
-2. **Reciprocal methods**: Pre-computed reciprocal tables using Z80N MUL for maximum speed with validated precision
+2. **8-bit Reciprocal methods**: Pre-computed reciprocal tables using Z80N MUL for maximum speed with validated precision
+2. **16-bit Reciprocal methods**: Pre-computed 16-bit reciprocal tables providing the highest precision over 8-bit reciprocals
 
 ## Target Platforms
 
@@ -87,68 +106,56 @@ The following platforms are targetted. The main entry points and individual func
 - **8-bit Random**: Eight different algorithms with standard Z80 and Z80N optimized versions
   - Standard Z80: LCG (~45-55 T-states), LFSR (~85-95 T-states), XorShift (~35-45 T-states), Middle Square (~115-150 T-states)
   - Next Z80N: LCG (~25-35 T-states), LFSR (~45-55 T-states), XorShift (~20-30 T-states), Middle Square (~65-75 T-states)
-- **16-bit Random**: Same four algorithms as 8-bit with extended precision
-- **Unified Interface**: Single API for multiple random algorithms with seeding support
-- **Performance Optimized**: T-state accurate timing with up to 47% improvement on Z80N
+- **16-bit Random**: Six different algorithms with standard Z80 and Z80N optimized versions
+  - Standard Z80: LCG (~85-95 T-states), LFSR (~68 T-states), XorShift (~55 T-states), Middle Square (~78 T-states)
+  - Next Z80N: LCG (~55-65 T-states), LFSR (~42 T-states), XorShift (~35 T-states), Middle Square (~48 T-states)
 
 ### Random Generation T-States
 
-| Algorithm | Standard Z80 | Z80N Optimized | Improvement |
-|-----------|-------------|----------------|-------------|
-| **LCG 8-bit** | 45-55 | 25-35 | ~45% faster |
-| **LFSR 8-bit** | 85-95 | 45-55 | ~47% faster |
-| **XorShift 8-bit** | 35-45 | 20-30 | ~43% faster |
-| **Middle Square 8-bit** | 115-150 | 65-75 | ~43% faster |
-| **LCG 16-bit** | 140-180 | 110-150* | ~21% faster |
-| **LFSR 16-bit** | 130-165 | 100-135* | ~23% faster |
-| **XorShift 16-bit** | 110-135 | 80-105* | ~27% faster |
-| **Middle Square 16-bit** | 400-500 | 370-470* | ~7% faster |
-
-*16-bit Z80N optimizations pending implementation
-
-#### 8-bit Random Generation
-
-**Seeding Function**:
-- `Random8_Unified_Seed` - Initialize seed and generate first random number
-
-**Input**: A = upper limit (inclusive), B = seed value, C = algorithm selection  
-**Output**: A = first random number in range 0 to limit  
-**T-States**: 
-- Standard: 70-200 (varies by algorithm)
-- Z80N: 50-120 (varies by algorithm)
-
-**Generation Function**:
-- `Random8_Unified_Next` - Generate subsequent random numbers
-
-**Input**: A = upper limit (inclusive), C = algorithm selection  
-**Output**: A = random number in range 0 to limit  
-**T-States**: See table above
+| Algorithm | 8-bit Standard | 8-bit Z80N | 16-bit Standard | 16-bit Z80N | Improvement |
+|-----------|----------------|------------|-----------------|-------------|-------------|
+| **LCG** | 45-55 | 25-35 | 85-95 | 55-65 | 30-35% faster |
+| **LFSR** | 85-95 | 45-55 | 68 | 42 | 38-47% faster |
+| **XorShift** | 35-45 | 20-30 | 55 | 35 | 36-43% faster |
+| **Middle Square** | 115-150 | 65-75 | 78 | 48 | 33-43% faster |
 
 #### Random Algorithm Constants
 
 ```asm
-; Standard Z80 Random Algorithms
-PERFORMANCE_RANDOM_LCG           EQU 0    ; Linear Congruential Generator (45-55 T-states)
-PERFORMANCE_RANDOM_LFSR          EQU 1    ; Linear Feedback Shift Register (85-95 T-states)
-PERFORMANCE_RANDOM_XORSHIFT      EQU 2    ; XorShift Algorithm (35-45 T-states)
-PERFORMANCE_RANDOM_MIDDLESQUARE  EQU 3    ; Middle Square Method (115-150 T-states)
+; 8-bit Standard Z80 Random Algorithms
+PERFORMANCE_STANDARD_RANDOM_LCG       EQU 0    ; Linear Congruential Generator (45-55 T-states)
+PERFORMANCE_STANDARD_RANDOM_LFSR      EQU 1    ; Linear Feedback Shift Register (85-95 T-states)
+PERFORMANCE_STANDARD_RANDOM_XORSHIFT  EQU 2    ; XorShift Algorithm (35-45 T-states)
+PERFORMANCE_STANDARD_RANDOM_MIDDLESQUARE EQU 3 ; Middle Square Method (115-150 T-states)
 
-; Next Z80N Random Algorithms  
-PERFORMANCE_Z80N_RANDOM_LCG      EQU 4    ; Z80N optimized LCG (25-35 T-states)
-PERFORMANCE_Z80N_RANDOM_LFSR     EQU 5    ; Z80N optimized LFSR (45-55 T-states)
-PERFORMANCE_Z80N_RANDOM_XORSHIFT EQU 6    ; Z80N optimized XorShift (20-30 T-states)
-PERFORMANCE_Z80N_RANDOM_MIDDLESQUARE EQU 7 ; Z80N optimized Middle Square (65-75 T-states)
+; 8-bit Next Z80N Random Algorithms  
+PERFORMANCE_Z80N_RANDOM_LCG           EQU 4    ; Z80N optimized LCG (25-35 T-states)
+PERFORMANCE_Z80N_RANDOM_LFSR          EQU 5    ; Z80N optimized LFSR (45-55 T-states)
+PERFORMANCE_Z80N_RANDOM_XORSHIFT      EQU 6    ; Z80N optimized XorShift (20-30 T-states)
+PERFORMANCE_Z80N_RANDOM_MIDDLESQUARE  EQU 7    ; Z80N optimized Middle Square (65-75 T-states)
+
+; 16-bit Standard Z80 Random Algorithms
+PERFORMANCE_STANDARD_RANDOM16_LCG      EQU 0   ; Linear Congruential Generator (85-95 T-states)
+PERFORMANCE_STANDARD_RANDOM16_LFSR     EQU 1   ; Linear Feedback Shift Register (68 T-states)
+PERFORMANCE_STANDARD_RANDOM16_XORSHIFT EQU 2   ; XorShift Algorithm (55 T-states)
+PERFORMANCE_STANDARD_RANDOM16_MIDDLESQUARE EQU 3 ; Middle Square Method (78 T-states)
+
+; 16-bit Next Z80N Random Algorithms
+PERFORMANCE_Z80N_RANDOM16_LCG          EQU 4   ; Z80N optimized 16-bit LCG (55-65 T-states)
+PERFORMANCE_Z80N_RANDOM16_LFSR         EQU 5   ; Z80N optimized 16-bit LFSR (42 T-states)
+PERFORMANCE_Z80N_RANDOM16_XORSHIFT     EQU 6   ; Z80N optimized 16-bit XorShift (35 T-states)
+PERFORMANCE_Z80N_RANDOM16_MIDDLESQUARE EQU 7   ; Z80N optimized 16-bit Middle Square (48 T-states)
 ```
 
 ## 🧮 **Random Number Generation Algorithms**
 
-NextLibrary provides eight different 8-bit random number generation algorithms optimized for different scenarios:
+NextLibrary provides comprehensive 8-bit and 16-bit random number generation algorithms optimized for different scenarios:
 
-### Standard Z80 Methods
-- **LCG (Linear Congruential Generator)**: Fast, predictable sequence (45-55 T-states)
-  - Best for: General purpose random numbers, fast generation
-  - Uses: Multiplicative formula with constants optimized for 8-bit
-  - Quality: Good distribution, moderate period length
+### 8-bit Standard Z80 Methods
+- **LCG (Linear Congruential Generator)**: Fast with good uniformity (45-55 T-states)
+  - Best for: High-speed applications requiring uniform distribution
+  - Uses: Multiply-add formula (a*seed + c) mod m
+  - Quality: Good distribution, very fast, widely used in games
 
 - **LFSR (Linear Feedback Shift Register)**: High-quality randomness (85-95 T-states)
   - Best for: Cryptographic applications, high-quality sequences
@@ -165,11 +172,11 @@ NextLibrary provides eight different 8-bit random number generation algorithms o
   - Uses: Squares the seed and extracts middle digits
   - Quality: Fair distribution, requires careful seed management
 
-### Next Z80N Methods (Spectrum Next Only)
+### 8-bit Next Z80N Methods (Spectrum Next Only)
 - **Z80N_LCG**: Hardware-accelerated LCG (25-35 T-states)
-  - Best for: Maximum speed general purpose random generation
-  - Uses: Z80N MUL instruction for multiplication step
-  - Quality: Same as standard LCG, 45% faster execution
+  - Best for: Ultra-fast uniform random generation
+  - Uses: Z80N MUL for single-cycle multiplication in LCG formula
+  - Quality: Same as standard LCG, 35% faster execution
 
 - **Z80N_LFSR**: Z80N optimized LFSR (45-55 T-states)
   - Best for: High-quality randomness with hardware acceleration
@@ -186,6 +193,48 @@ NextLibrary provides eight different 8-bit random number generation algorithms o
   - Uses: Z80N MUL for single-cycle squaring operation
   - Quality: Same as standard Middle Square, 43% faster execution
 
+### 16-bit Standard Z80 Methods
+- **LCG (Linear Congruential Generator)**: Fast 16-bit uniform generation (85-95 T-states)
+  - Best for: High-speed 16-bit applications requiring uniform distribution
+  - Uses: Extended 16-bit multiply-add formula
+  - Quality: Good distribution, fastest 16-bit method, widely used
+
+- **LFSR (Linear Feedback Shift Register)**: High-quality 16-bit randomness (68 T-states)
+  - Best for: High-quality sequences with extended precision
+  - Uses: 16-bit polynomial feedback with bit manipulation
+  - Quality: Excellent distribution, maximum period (65535 values)
+
+- **XorShift**: Fast 16-bit generation (55 T-states)
+  - Best for: Fast 16-bit random numbers with good quality
+  - Uses: Extended XOR and bit shifting operations
+  - Quality: Very good distribution, optimal speed/quality balance
+
+- **Middle Square**: 16-bit classic algorithm (78 T-states)
+  - Best for: Extended precision middle square method
+  - Uses: 16-bit squaring with middle extraction
+  - Quality: Good distribution with careful seed management
+
+### 16-bit Next Z80N Methods (Spectrum Next Only)
+- **Z80N_LCG**: Hardware-accelerated 16-bit LCG (55-65 T-states)
+  - Best for: Ultra-fast 16-bit uniform random generation
+  - Uses: Z80N MUL for efficient 16-bit LCG calculations
+  - Quality: Same as standard 16-bit LCG, 30% faster execution
+
+- **Z80N_LFSR**: Z80N optimized 16-bit LFSR (42 T-states)
+  - Best for: High-quality 16-bit randomness with hardware acceleration
+  - Uses: Z80N MUL for efficient 16-bit polynomial operations
+  - Quality: Same as standard 16-bit LFSR, 38% faster execution
+
+- **Z80N_XorShift**: Ultra-fast 16-bit XorShift (35 T-states)
+  - Best for: Fastest possible 16-bit random generation
+  - Uses: Z80N MUL for optimized 16-bit bit operations
+  - Quality: Same as standard 16-bit XorShift, 36% faster execution
+
+- **Z80N_MiddleSquare**: Hardware-accelerated 16-bit Middle Square (48 T-states)
+  - Best for: 16-bit classic algorithm with modern performance
+  - Uses: Z80N MUL for single-cycle 16-bit squaring operation
+  - Quality: Same as standard 16-bit Middle Square, 38% faster execution
+
 ### Z80N Performance Benefits
 
 The Z80N optimized versions provide significant performance improvements:
@@ -195,7 +244,7 @@ The Z80N optimized versions provide significant performance improvements:
 - **Maintained Quality**: Identical mathematical properties and output sequences
 - **Same Seed Compatibility**: Drop-in replacements for standard versions
 
-**Performance Summary**: Z80N random generators are 20-47% faster while maintaining identical output quality and seed compatibility with their standard Z80 counterparts.
+**Performance Summary**: Z80N random generators are 30-47% faster while maintaining identical output quality and seed compatibility with their standard Z80 counterparts.
 
 ## 📝 **TODO List**
 
@@ -274,14 +323,29 @@ LD      C, PERFORMANCE_NEXT_COMPACT   ; Uses Z80N MUL instruction
 CALL    Multiply8x8_Unified
 ; Result in HL = 300 (85% faster!)
 
-; Random Number Generation
-LD      A, 123          ; Seed value
-LD      C, PERFORMANCE_RANDOM_LCG
-CALL    RandomSeed8_Unified
+; 8-bit Random Number Generation
+LD      A, 15           ; Upper limit (inclusive)
+LD      B, 123          ; Seed value
+LD      C, PERFORMANCE_Z80N_RANDOM_LFSR ; Z80N LFSR algorithm
+CALL    Random8_Unified_Seed
+; First random value in A
 
-LD      C, PERFORMANCE_RANDOM_LCG
-CALL    Random8_Unified
-; Random value in A
+LD      A, 7            ; New upper limit
+LD      C, PERFORMANCE_Z80N_RANDOM_LFSR ; Same algorithm  
+CALL    Random8_Unified_Next
+; Next random value in A
+
+; 16-bit Random Number Generation
+LD      HL, 1000        ; Upper limit (inclusive)
+LD      BC, 9876        ; Seed value
+LD      D, PERFORMANCE_Z80N_RANDOM16_MIDDLESQUARE ; Z80N 16-bit Middle Square
+CALL    Random16_Unified_Seed
+; First random value in HL
+
+LD      HL, 5000        ; New upper limit
+LD      D, PERFORMANCE_Z80N_RANDOM16_MIDDLESQUARE ; Same algorithm
+CALL    Random16_Unified_Next  
+; Next random value in HL
 ```
 
 ## ⚡ **Z80N Performance Comparison**
@@ -435,18 +499,18 @@ CALL    Screen_ClearAttr_Unified
 ### Random Number Generation
 
 #### 8-bit Random
-- `RandomSeed8_Unified` - Initialize 8-bit random seed
-- `Random8_Unified` - Generate 8-bit random number
+- `Random8_Unified_Seed` - Initialize 8-bit random seed and generate first value
+- `Random8_Unified_Next` - Generate subsequent 8-bit random numbers
 
-**Input**: A = seed (for seeding), C = algorithm selection  
-**Output**: A = random value
+**Input**: A = upper limit (inclusive), B = seed (seeding only), C = algorithm selection  
+**Output**: A = random value in range [0, limit]
 
 #### 16-bit Random  
-- `RandomSeed16_Unified` - Initialize 16-bit random seed
-- `Random16_Unified` - Generate 16-bit random number
+- `Random16_Unified_Seed` - Initialize 16-bit random seed and generate first value
+- `Random16_Unified_Next` - Generate subsequent 16-bit random numbers
 
-**Input**: BC = seed (for seeding), D = algorithm selection  
-**Output**: BC = random value
+**Input**: HL = upper limit (inclusive), BC = seed (seeding only), D = algorithm selection  
+**Output**: HL = random value in range [0, limit]
 
 ### Algorithm Constants
 
@@ -461,11 +525,29 @@ PERFORMANCE_NEXT_COMPACT   EQU 3
 PERFORMANCE_NEXT_BALANCED  EQU 4
 PERFORMANCE_NEXT_MAXIMUM   EQU 5
 
-; Random Algorithms
-PERFORMANCE_RANDOM_LCG           EQU 0    ; Linear Congruential Generator
-PERFORMANCE_RANDOM_LFSR          EQU 1    ; Linear Feedback Shift Register
-PERFORMANCE_RANDOM_XORSHIFT      EQU 2    ; XorShift Algorithm
-PERFORMANCE_RANDOM_MIDDLESQUARE  EQU 3    ; Middle Square Method
+; 8-bit Random Algorithms (Standard Z80)
+PERFORMANCE_STANDARD_RANDOM_LCG           EQU 0    ; Linear Congruential Generator
+PERFORMANCE_STANDARD_RANDOM_LFSR          EQU 1    ; Linear Feedback Shift Register
+PERFORMANCE_STANDARD_RANDOM_XORSHIFT      EQU 2    ; XorShift Algorithm
+PERFORMANCE_STANDARD_RANDOM_MIDDLESQUARE  EQU 3    ; Middle Square Method
+
+; 8-bit Random Algorithms (Next Z80N)
+PERFORMANCE_Z80N_RANDOM_LCG               EQU 4    ; Z80N optimized LCG
+PERFORMANCE_Z80N_RANDOM_LFSR              EQU 5    ; Z80N optimized LFSR
+PERFORMANCE_Z80N_RANDOM_XORSHIFT          EQU 6    ; Z80N optimized XorShift
+PERFORMANCE_Z80N_RANDOM_MIDDLESQUARE      EQU 7    ; Z80N optimized Middle Square
+
+; 16-bit Random Algorithms (Standard Z80)
+PERFORMANCE_STANDARD_RANDOM16_LCG         EQU 0    ; 16-bit Linear Congruential Generator
+PERFORMANCE_STANDARD_RANDOM16_LFSR        EQU 1    ; 16-bit Linear Feedback Shift Register
+PERFORMANCE_STANDARD_RANDOM16_XORSHIFT    EQU 2    ; 16-bit XorShift Algorithm
+PERFORMANCE_STANDARD_RANDOM16_MIDDLESQUARE EQU 3   ; 16-bit Middle Square Method
+
+; 16-bit Random Algorithms (Next Z80N)
+PERFORMANCE_Z80N_RANDOM16_LCG             EQU 4    ; Z80N optimized 16-bit LCG
+PERFORMANCE_Z80N_RANDOM16_LFSR            EQU 5    ; Z80N optimized 16-bit LFSR
+PERFORMANCE_Z80N_RANDOM16_XORSHIFT        EQU 6    ; Z80N optimized 16-bit XorShift
+PERFORMANCE_Z80N_RANDOM16_MIDDLESQUARE    EQU 7    ; Z80N optimized 16-bit Middle Square
 
 ; Screen Performance Levels
 SCREEN_COMPACT               EQU 0    ; Standard LDIR operation
@@ -498,10 +580,12 @@ SCREEN_ALLPUSH               EQU 5    ; 256 pixels per loop
 
 NextLibrary includes comprehensive test suites:
 
-- **49 Test Cases** continually being expanded to cover more functionality. 
-- **Algorithm Validation** for all random number generators
+- **57 Test Cases** continually being expanded to cover more functionality. 
+- **Algorithm Validation** for all random number generators (8-bit and 16-bit)
 - **Performance Verification** across all performance levels
 - **Edge Case Testing** for boundary conditions
+- **Statistical Distribution Testing** for random number quality
+- **Seed Compatibility Testing** between standard and Z80N versions
 
 Run tests using the included test framework:
 

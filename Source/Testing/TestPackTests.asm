@@ -233,5 +233,21 @@ TestPackTests:      LD      A, 0x07                            ; Set default att
                     RET     NZ              ; If test failed, return
                     LD      A, 53           ; Test number
                     CALL    PrintPassed
+                    CALL    TestCase054     ; Test case 54: Z80N 16-bit LCG Random Generation
+                    RET     NZ              ; If test failed, return
+                    LD      A, 54           ; Test number
+                    CALL    PrintPassed
+                    CALL    TestCase055     ; Test case 55: Z80N 16-bit LFSR Random Generation
+                    RET     NZ              ; If test failed, return
+                    LD      A, 55           ; Test number
+                    CALL    PrintPassed
+                    CALL    TestCase056     ; Test case 56: Z80N 16-bit Xor Shift Random Generation
+                    RET     NZ              ; If test failed, return
+                    LD      A, 56           ; Test number
+                    CALL    PrintPassed
+                    CALL    TestCase057     ; Test case 57: Z80N 16-bit Middle Square Random Generation
+                    RET     NZ              ; If test failed, return
+                    LD      A, 57           ; Test number
+                    CALL    PrintPassed
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
                     JP      AllTestsPassed  ; If we reach here, all tests passed
