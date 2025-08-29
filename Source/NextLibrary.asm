@@ -24,7 +24,6 @@ StartAddress:   ; Main program entry point
                 LD      SP, (OriginalStack)                ; Restore original stack pointer
                 RET
 
-
 TestPack:       INCLUDE "Testing/TestPackFramework.asm"    ; Include the Test Pack Framework entry points
                 INCLUDE "Testing/TestPackTests.asm"        ; Include the Test Pack Tests Executor
                 INCLUDE "Testing/TestCases.asm"            ; Include all test cases

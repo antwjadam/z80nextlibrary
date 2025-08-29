@@ -14,6 +14,17 @@ As I work on this library, I will first share the device independent routines an
 
 ## Release History
 
+**v1.5** - Enhanced Test Framework and Maintainability
+
+Key improvements:
+- **Streamlined Test Framework**: Replaced repetitive test execution code with elegant table-driven loop system
+- **Simplified Test Management**: Adding new tests now requires only 3 simple steps: create TestCase0nn routine, add to table, update counter
+- **Reduced Code Complexity**: Test execution code reduced from ~240 lines to ~80 lines (70% reduction)
+- **Improved Maintainability**: Single point of control for test count and execution flow
+- **Enhanced Reliability**: Proper stack management and flag preservation throughout test execution
+- **Developer Experience**: Much easier to add, modify, or debug individual test cases
+- **Code Quality**: Eliminated copy-paste errors and inconsistencies in test execution flow
+
 **v1.4** - Enhanced 16-bit Random Operations with Z80N Support
 
 Key improvements:
