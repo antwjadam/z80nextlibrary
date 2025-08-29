@@ -3,251 +3,126 @@ TestPackTests:      LD      A, 0x07                            ; Set default att
                     LD      C, SCREEN_2PUSH
                     CALL    Screen_FullReset_Unified
                     ; Print title at top
-                    LD      B, 0            ; Row 0 (top)
-                    LD      C, 0            ; Column 0 (left)
+                    LD      B, 0                               ; Row 0 (top)
+                    LD      C, 0                               ; Column 0 (left)
                     LD      HL, MsgTitle
                     CALL    PrintStringAt
                     ; Position cursor for test results (2 lines below title)
-                    LD      B, 3            ; Row 3 (leaving space after title)
-                    LD      C, 0            ; Column 0 (left)
+                    LD      B, 3                               ; Row 3 (leaving space after title)
+                    LD      C, 0                               ; Column 0 (left)
                     CALL    SetCursor
-; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-                    CALL    TestCase001     ; Test case 1: 5 × 3 = 15
-                    RET     NZ              ; If test failed, return
-                    LD      A, 1            ; Test number
-                    CALL    PrintPassed
-                    CALL    TestCase002     ; Test case 2: 12 × 8 = 96
-                    RET     NZ              ; If test failed, return
-                    LD      A, 2            ; Test number
-                    CALL    PrintPassed                       
-                    CALL    TestCase003     ; Test case 3: 15 × 17 = 255
-                    RET     NZ              ; If test failed, return
-                    LD      A, 3            ; Test number
-                    CALL    PrintPassed
-                    CALL    TestCase004     ; Test case 4: 0 × 123 = 0
-                    RET     NZ              ; If test failed, return
-                    LD      A, 4            ; Test number
-                    CALL    PrintPassed
-                    CALL    TestCase005     ; Test case 5: 16 × 16 = 256
-                    RET     NZ              ; If test failed, return
-                    LD      A, 5            ; Test number
-                    CALL    PrintPassed
-; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-                    CALL    TestCase006     ; Test case 6: 45 ÷ 7 = 6 remainder 3
-                    RET     NZ              ; If test failed, return
-                    LD      A, 6            ; Test number
-                    CALL    PrintPassed           
-                    CALL    TestCase007     ; Test case 7: 100 ÷ 8 = 12 remainder 4
-                    RET     NZ              ; If test failed, return
-                    LD      A, 7            ; Test number
-                    CALL    PrintPassed           
-                    CALL    TestCase008     ; Test case 8: 255 ÷ 15 = 17 remainder 0
-                    RET     NZ              ; If test failed, return
-                    LD      A, 8            ; Test number
-                    CALL    PrintPassed
-                    CALL    TestCase009     ; Test case 9: 50 ÷ 200 = 0 remainder 50 (dividend < divisor)
-                    RET     NZ              ; If test failed, return
-                    LD      A, 9            ; Test number
-                    CALL    PrintPassed
-; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-                    CALL    TestCase010     ; Test case 10: 5000 ÷ 13 = 384 remainder 8 (16-bit division)
-                    RET     NZ              ; If test failed, return
-                    LD      A, 10           ; Test number
-                    CALL    PrintPassed
-                    CALL    TestCase011     ; Test case 11: 1000 × 50 = 50000 (16x8 multiplication)
-                    RET     NZ              ; If test failed, return
-                    LD      A, 11           ; Test number
-                    CALL    PrintPassed
-                    CALL    TestCase012     ; Test case 12: 200 × 25 = 5000 (16x8 fast multiplication)
-                    RET     NZ              ; If test failed, return
-                    LD      A, 12           ; Test number
-                    CALL    PrintPassed
-                    CALL    TestCase013     ; Test case 13: 5000 ÷ 25 = 200 remainder 0 (16x8 fast division)
-                    RET     NZ              ; If test failed, return
-                    LD      A, 13           ; Test number
-                    CALL    PrintPassed
-; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-                    CALL    TestCase014     ; Test case 14: Random number generator validation LCG
-                    RET     NZ              ; If test failed, return
-                    LD      A, 14           ; Test number
-                    CALL    PrintPassed
-                    CALL    TestCase015     ; Test case 15: Random number generator validation XORShift
-                    RET     NZ              ; If test failed, return
-                    LD      A, 15           ; Test number
-                    CALL    PrintPassed
-                    CALL    TestCase016     ; Test case 16: LFSR random number generator
-                    RET     NZ              ; If test failed, return
-                    LD      A, 16           ; Test number
-                    CALL    PrintPassed
-                    CALL    TestCase017     ; Test case 17: Middle Square random number generator
-                    RET     NZ              ; If test failed, return
-                    LD      A, 17           ; Test number
-                    CALL    PrintPassed
-; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-                    CALL    TestCase018     ; Test case 18: Random number generator validation LCG 16 bit
-                    RET     NZ              ; If test failed, return
-                    LD      A, 18           ; Test number
-                    CALL    PrintPassed
-                    CALL    TestCase019     ; Test case 19: Random number generator validation XORShift 16 bit
-                    RET     NZ              ; If test failed, return
-                    LD      A, 19           ; Test number
-                    CALL    PrintPassed
-                    CALL    TestCase020     ; Test case 20: Random number generator validation LFSR 16 bit
-                    RET     NZ              ; If test failed, return
-                    LD      A, 20           ; Test number
-                    CALL    PrintPassed
-                    CALL    TestCase021     ; Test case 21: Random number generator validation Middle Square 16 bit
-                    RET     NZ              ; If test failed, return
-                    LD      A, 21           ; Test number
-                    CALL    PrintPassed
-; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-                    CALL    TestCase022     ; Test case 22: Convert 0 without leading zeros
-                    RET     NZ              ; If test failed, return
-                    LD      A, 22           ; Test number
-                    CALL    PrintPassed
-                    CALL    TestCase023     ; Test case 23: Convert 0 with leading zeros
-                    RET     NZ              ; If test failed, return
-                    LD      A, 23           ; Test number
-                    CALL    PrintPassed
-                    CALL    TestCase024     ; Test case 24: Convert 1 without leading zeros
-                    RET     NZ              ; If test failed, return
-                    LD      A, 24           ; Test number
-                    CALL    PrintPassed
-                    CALL    TestCase025     ; Test case 25: Convert 1 with leading zeros
-                    RET     NZ              ; If test failed, return
-                    LD      A, 25           ; Test number
-                    CALL    PrintPassed
-                    CALL    TestCase026     ; Test case 26: Convert 123 without leading zeros
-                    RET     NZ              ; If test failed, return
-                    LD      A, 26           ; Test number
-                    CALL    PrintPassed
-                    CALL    TestCase027     ; Test case 27: Convert 123 with leading zeros
-                    RET     NZ              ; If test failed, return
-                    LD      A, 27           ; Test number
-                    CALL    PrintPassed
-                    CALL    TestCase028     ; Test case 28: Convert 9999 without leading zeros
-                    RET     NZ              ; If test failed, return
-                    LD      A, 28           ; Test number
-                    CALL    PrintPassed
-                    CALL    TestCase029     ; Test case 29: Convert 65535 without leading zeros
-                    RET     NZ              ; If test failed, return
-                    LD      A, 29           ; Test number
-                    CALL    PrintPassed
-                    CALL    TestCase030     ; Test case 30: Convert 12345 in both modes
-                    RET     NZ              ; If test failed, return
-                    LD      A, 30           ; Test number
-                    CALL    PrintPassed
-; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - Unification Refactor extra test cases
-                    CALL    TestCase031     ; Test case 31: Compact Multiply 8x8
-                    RET     NZ              ; If test failed, return
-                    LD      A, 31           ; Test number
-                    CALL    PrintPassed
-                    CALL    TestCase032     ; Test case 32: Compact Multiply 16x8
-                    RET     NZ              ; If test failed, return
-                    LD      A, 32           ; Test number
-                    CALL    PrintPassed
-                    CALL    TestCase033     ; Test case 33: Compact Multiply 16x8 - Large Result
-                    RET     NZ              ; If test failed, return
-                    LD      A, 33           ; Test number
-                    CALL    PrintPassed
-                    CALL    TestCase034     ; Test case 34: Balanced Multiply 16x8 - Large Result
-                    RET     NZ              ; If test failed, return
-                    LD      A, 34           ; Test number
-                    CALL    PrintPassed
-                    CALL    TestCase035     ; Test case 35: Maximum Multiply 16x8 - Large Result
-                    RET     NZ              ; If test failed, return
-                    LD      A, 35           ; Test number
-                    CALL    PrintPassed
-                    CALL    TestCase036     ; Test case 36: Compact Divide 8x8
-                    RET     NZ              ; If test failed, return
-                    LD      A, 36           ; Test number
-                    CALL    PrintPassed
-                    CALL    TestCase037     ; Test case 37: Compact Divide 16x8
-                    RET     NZ              ; If test failed, return
-                    LD      A, 37           ; Test number
-                    CALL    PrintPassed
-; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-                    CALL    TestCase038     ; Test case 38: Compact Multiply 8x8 - NEXT only, using Z80N op codes
-                    RET     NZ              ; If test failed, return
-                    LD      A, 38           ; Test number
-                    CALL    PrintPassed
-                    CALL    TestCase039     ; Test case 39: Balanced Multiply 8x8 - NEXT only, using Z80N op codes
-                    RET     NZ              ; If test failed, return
-                    LD      A, 39           ; Test number
-                    CALL    PrintPassed
-                    CALL    TestCase040     ; Test case 40: Maximum Multiply 8x8 - NEXT only, using Z80N op codes
-                    RET     NZ              ; If test failed, return
-                    LD      A, 40           ; Test number
-                    CALL    PrintPassed
-                    CALL    TestCase041     ; Test case 41: Compact Multiply 16x8 - NEXT only, using Z80N op codes - Large Result
-                    RET     NZ              ; If test failed, return
-                    LD      A, 41           ; Test number
-                    CALL    PrintPassed
-                    CALL    TestCase042     ; Test case 42: Balanced Multiply 16x8 - NEXT only, using Z80N op codes - Large Result
-                    RET     NZ              ; If test failed, return
-                    LD      A, 42           ; Test number
-                    CALL    PrintPassed
-                    CALL    TestCase043     ; Test case 43: Maximum Multiply 16x8 - NEXT only, using Z80N op codes - Large Result
-                    RET     NZ              ; If test failed, return
-                    LD      A, 43           ; Test number
-                    CALL    PrintPassed
-; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-                    CALL    TestCase044     ; Test case 44: Compact Divide 8x8 - NEXT only, using Z80N op codes
-                    RET     NZ              ; If test failed, return
-                    LD      A, 44           ; Test number
-                    CALL    PrintPassed
-                    CALL    TestCase045     ; Test case 45: Maximum Divide 16x8 - NEXT only, using Z80N op codes, 16-bit reciprocal table
-                    RET     NZ              ; If test failed, return
-                    LD      A, 45           ; Test number
-                    CALL    PrintPassed
-                    CALL    TestCase046     ; Test case 46: Balanced Divide 8x8 - NEXT only, using Z80N op codes with 8-bit reciprocals
-                    RET     NZ              ; If test failed, return
-                    LD      A, 46           ; Test number
-                    CALL    PrintPassed
-                    CALL    TestCase047     ; Test case 47: Balanced Divide 16x8 - NEXT only, using Z80N op codes with 8-bit reciprocals
-                    RET     NZ              ; If test failed, return
-                    LD      A, 47           ; Test number
-                    CALL    PrintPassed
-                    CALL    TestCase048     ; Test case 48: Hybrid Divide 16x8 - NEXT only, using Z80N op codes
-                    RET     NZ              ; If test failed, return
-                    LD      A, 48           ; Test number
-                    CALL    PrintPassed
-                    CALL    TestCase049     ; Test case 49: Maximum Divide 16x8 - NEXT only, using Z80N op codes with 16-bit reciprocals
-                    RET     NZ              ; If test failed, return
-                    LD      A, 49           ; Test number
-                    CALL    PrintPassed
-; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-                    CALL    TestCase050     ; Test case 50: Random number generator validation LCG for Next, Z80N opcodes used for performance.
-                    RET     NZ              ; If test failed, return
-                    LD      A, 50           ; Test number
-                    CALL    PrintPassed
-                    CALL    TestCase051     ; Test case 51: Random number generator validation XORShift for Next, Z80N opcodes used for performance.
-                    RET     NZ              ; If test failed, return
-                    LD      A, 51           ; Test number
-                    CALL    PrintPassed
-                    CALL    TestCase052     ; Test case 52: LFSR random number generator for Next, Z80N opcodes used for performance.
-                    RET     NZ              ; If test failed, return
-                    LD      A, 52           ; Test number
-                    CALL    PrintPassed
-                    CALL    TestCase053     ; Test case 53: Random 8-bit Middle Square for Next, Z80N opcodes used for performance.
-                    RET     NZ              ; If test failed, return
-                    LD      A, 53           ; Test number
-                    CALL    PrintPassed
-                    CALL    TestCase054     ; Test case 54: Z80N 16-bit LCG Random Generation
-                    RET     NZ              ; If test failed, return
-                    LD      A, 54           ; Test number
-                    CALL    PrintPassed
-                    CALL    TestCase055     ; Test case 55: Z80N 16-bit LFSR Random Generation
-                    RET     NZ              ; If test failed, return
-                    LD      A, 55           ; Test number
-                    CALL    PrintPassed
-                    CALL    TestCase056     ; Test case 56: Z80N 16-bit Xor Shift Random Generation
-                    RET     NZ              ; If test failed, return
-                    LD      A, 56           ; Test number
-                    CALL    PrintPassed
-                    CALL    TestCase057     ; Test case 57: Z80N 16-bit Middle Square Random Generation
-                    RET     NZ              ; If test failed, return
-                    LD      A, 57           ; Test number
-                    CALL    PrintPassed
-; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-                    JP      AllTestsPassed  ; If we reach here, all tests passed
+                    ; Initialize test loop
+                    LD      HL, TestCaseTable                   ; HL points to test case address table
+                    LD      B, 57                               ; Total number of tests
+                    XOR     A                                   ; Test counter for printing, start at zero
+RunNextTest:        INC     A                                   ; Increment test case number
+                    PUSH    AF                                  ; Preserve test case number
+                    ; Get test case address from table and call it
+                    PUSH    HL                                  ; Preserve current test case address
+                    LD      E, (HL)                             ; Low byte of test address
+                    INC     HL
+                    LD      D, (HL)                             ; High byte of test address
+                    EX      DE, HL                              ; HL = test case address
+                    CALL    SafeCallTest                        ; Call the test case pointed to by HL
+                    POP     HL                                  ; Restore currenttest case address
+                    JP      NZ,ExitOnFail                       ; Return if test failed
+                    POP     AF                                  ; Get test number for printing passed message
+                    CALL    SafePrintPassed                     ; Print test passed message
+                    INC     HL                                  ; Move to next address in table
+                    INC     HL                                  ; (addresses are 2 bytes each)
+                    DJNZ    RunNextTest                         ; Decrement B and loop if not zero
+                    JP      AllTestsPassed                      ; If we reach here, all tests passed
+
+ExitOnFail:         ; AF still on stack, Z flag preserved from test result
+                    POP     AF                                  ; Clean up stack (AF no longer needed)
+                    RET                                         ; Safe to return at the point of test failure.
+
+SafePrintPassed:    ; Helper routine to ensure safe call of print passed
+                    PUSH    AF                                  ; Preserve test number
+                    PUSH    BC                                  ; Preserve BC
+                    PUSH    DE                                  ; Preserve DE
+                    PUSH    HL                                  ; Preserve HL
+                    ; get the message the test produced
+                    LD      HL, (TestResultMessage)
+                    CALL    PrintPassed                         ; Call print routine
+                    POP     HL                                  ; Restore HL
+                    POP     DE                                  ; Restore DE
+                    POP     BC                                  ; Restore loop counter
+                    POP     AF                                  ; Restore test number
+                    RET
+
+SafeCallTest:       ; Helper routine to call address in HL
+                    PUSH    BC                                  ; Preserve BC
+                    PUSH    DE                                  ; Preserve DE
+                    PUSH    HL                                  ; Preserve HL
+                    CALL    CallHL                              ; Call the test case
+                    ; on exit, test will have a message pointed to by HL, so save it
+                    LD      (TestResultMessage), HL
+                    POP     HL                                  ; Restore HL
+                    POP     DE                                  ; Restore DE
+                    POP     BC                                  ; Restore BC
+                    RET
+
+; Calling this is effectively a CALL to address pointed to by HL.
+CallHL:             JP      (HL)                                ; Jump to address in HL
+
+TestResultMessage:  DS      2                       ; Placeholder for test result message   
+
+; Test case address table - maintains order from original code
+TestCaseTable:      DW      TestCase001             ; Test 1: 5 × 3 = 15
+                    DW      TestCase002             ; Test 2: 12 × 8 = 96
+                    DW      TestCase003             ; Test 3: 15 × 17 = 255
+                    DW      TestCase004             ; Test 4: 0 × 123 = 0
+                    DW      TestCase005             ; Test 5: 16 × 16 = 256
+                    DW      TestCase006             ; Test 6: 45 ÷ 7 = 6 remainder 3
+                    DW      TestCase007             ; Test 7: 100 ÷ 8 = 12 remainder 4
+                    DW      TestCase008             ; Test 8: 255 ÷ 15 = 17 remainder 0
+                    DW      TestCase009             ; Test 9: 50 ÷ 200 = 0 remainder 50
+                    DW      TestCase010             ; Test 10: 5000 ÷ 13 = 384 remainder 8
+                    DW      TestCase011             ; Test 11: 1000 × 50 = 50000
+                    DW      TestCase012             ; Test 12: 200 × 25 = 5000
+                    DW      TestCase013             ; Test 13: 5000 ÷ 25 = 200 remainder 0
+                    DW      TestCase014             ; Test 14: Random LCG validation
+                    DW      TestCase015             ; Test 15: Random XORShift validation
+                    DW      TestCase016             ; Test 16: LFSR random generator
+                    DW      TestCase017             ; Test 17: Middle Square random generator
+                    DW      TestCase018             ; Test 18: Random LCG 16-bit validation
+                    DW      TestCase019             ; Test 19: Random XORShift 16-bit validation
+                    DW      TestCase020             ; Test 20: Random LFSR 16-bit validation
+                    DW      TestCase021             ; Test 21: Random Middle Square 16-bit validation
+                    DW      TestCase022             ; Test 22: Convert 0 without leading zeros
+                    DW      TestCase023             ; Test 23: Convert 0 with leading zeros
+                    DW      TestCase024             ; Test 24: Convert 1 without leading zeros
+                    DW      TestCase025             ; Test 25: Convert 1 with leading zeros
+                    DW      TestCase026             ; Test 26: Convert 123 without leading zeros
+                    DW      TestCase027             ; Test 27: Convert 123 with leading zeros
+                    DW      TestCase028             ; Test 28: Convert 9999 without leading zeros
+                    DW      TestCase029             ; Test 29: Convert 65535 without leading zeros
+                    DW      TestCase030             ; Test 30: Convert 12345 in both modes
+                    DW      TestCase031             ; Test 31: Compact Multiply 8x8
+                    DW      TestCase032             ; Test 32: Compact Multiply 16x8
+                    DW      TestCase033             ; Test 33: Compact Multiply 16x8 - Large Result
+                    DW      TestCase034             ; Test 34: Balanced Multiply 16x8 - Large Result
+                    DW      TestCase035             ; Test 35: Maximum Multiply 16x8 - Large Result
+                    DW      TestCase036             ; Test 36: Compact Divide 8x8
+                    DW      TestCase037             ; Test 37: Compact Divide 16x8
+                    DW      TestCase038             ; Test 38: Z80N Compact Multiply 8x8
+                    DW      TestCase039             ; Test 39: Z80N Balanced Multiply 8x8
+                    DW      TestCase040             ; Test 40: Z80N Maximum Multiply 8x8
+                    DW      TestCase041             ; Test 41: Z80N Compact Multiply 16x8
+                    DW      TestCase042             ; Test 42: Z80N Balanced Multiply 16x8
+                    DW      TestCase043             ; Test 43: Z80N Maximum Multiply 16x8
+                    DW      TestCase044             ; Test 44: Z80N Compact Divide 8x8
+                    DW      TestCase045             ; Test 45: Z80N Maximum Divide 16x8
+                    DW      TestCase046             ; Test 46: Z80N Balanced Divide 8x8
+                    DW      TestCase047             ; Test 47: Z80N Balanced Divide 16x8
+                    DW      TestCase048             ; Test 48: Z80N Hybrid Divide 16x8
+                    DW      TestCase049             ; Test 49: Z80N Maximum Divide 16x8
+                    DW      TestCase050             ; Test 50: Z80N Random LCG validation
+                    DW      TestCase051             ; Test 51: Z80N Random XORShift validation
+                    DW      TestCase052             ; Test 52: Z80N LFSR random generator
+                    DW      TestCase053             ; Test 53: Z80N Random 8-bit Middle Square
+                    DW      TestCase054             ; Test 54: Z80N 16-bit LCG Random Generation
+                    DW      TestCase055             ; Test 55: Z80N 16-bit LFSR Random Generation
+                    DW      TestCase056             ; Test 56: Z80N 16-bit XorShift Random Generation
+                    DW      TestCase057             ; Test 57: Z80N 16-bit Middle Square Random Generation
