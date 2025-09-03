@@ -55,3 +55,5 @@
                 INCLUDE "TestCase055.asm"  ; Random 16-bit LFSR for Next Only, using Z80N op codes
                 INCLUDE "TestCase056.asm"  ; Random 16-bit Xor Shift for Next Only, using Z80N op codes
                 INCLUDE "TestCase057.asm"  ; Random 16-bit Middle Square for Next Only, using Z80N op codes
+                INCLUDE "TestCase058.asm"  ; Z80N Detection
+                INCLUDE "TestCase059.asm"  ; DMA Available Detection

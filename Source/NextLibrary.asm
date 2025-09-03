@@ -11,6 +11,8 @@ StartAddress:   ; Main program entry point
                 ; Initialize display system
                 CALL    InitDisplay
 
+                ; clear screen pixels and set attributes
+                LD      HL, 0                              ; Default screen area to ZX Spectrum screen base
                 LD      A, 0x07                            ; Set default attribute (white on black)
                 LD      C, SCREEN_COMPACT                  ; Set performance level to compact (this demo's LDIR, for higher performing screen clearing see ScreenClearing.asm)
                 CALL    Screen_FullReset_Unified
@@ -30,6 +32,8 @@ TestPack:       INCLUDE "Testing/TestPackFramework.asm"    ; Include the Test Pa
 
                 INCLUDE "Variables.asm"                    ; Include the Variables definitions
 
+Utilities:      INCLUDE "Utility/Utilities.asm"            ; Include Utility Functions
+
 RandomHelpers:  INCLUDE "Random/Random8bit.asm"            ; Include 8-bit Random Number Generator - Unified
                 INCLUDE "Random/Random16bit.asm"           ; Include 16-bit Random Number Generator - Unified
 
@@ -41,6 +45,8 @@ MathsHelpers:   INCLUDE "Divide/Divide8x8.asm"             ; Include Unified Div
 DisplayUtils:   INCLUDE "Display/ScreenClearing.asm"       ; Include the Screen Clearing routines
                 INCLUDE "Display/TextUtils.asm"            ; Include the Text Utils routines
                 INCLUDE "Display/EmbeddedFont.asm"         ; Include the Embedded Font
+
+DMASupport:     INCLUDE "DMA/DMASupport.asm"               ; Include DMA Support Functions
 
 KeysHelpers:    INCLUDE "Input/InputScanUtils.asm"         ; Include the Input scanning routines
                 INCLUDE "Input/WaitPlayerUtils.asm"        ; Include the Wait Player Interaction routines

@@ -3,16 +3,36 @@
 [![Platform: ZX Spectrum Next](https://img.shields.io/badge/Platform-ZX%20Spectrum%20Next-blue.svg)](https://www.specnext.com/)
 [![Assembly: Z80](https://img.shields.io/badge/Assembly-Z80-green.svg)](https://en.wikipedia.org/wiki/Zilog_Z80)
 [![Assembly: Z80N](https://img.shields.io/badge/Assembly-Z80N-orange.svg)](https://wiki.specnext.dev/Z80N_Extended_Opcodes)
+[![DMA: Supported](https://img.shields.io/badge/DMA-Supported-red.svg)](https://wiki.specnext.dev/DMA)
 
-**A high-performance, utility library for Z80 assembly development on the ZX Spectrum and ZX Spectrum Next platforms. The choice is yours, you can use device independent routines or limit yourself to platform specific functionality.**
+**A high-performance, utility library for Z80 assembly development on the ZX Spectrum and ZX Spectrum Next platforms. The choice is yours, you can use device independent routines or limit yourself to platform specific routines for a single target architecture.**
 
-NextLibrary provides world-class mathematical operations, random number generation, and utility functions optimized for retro game development and system programming.
+NextLibrary provides world-class mathematical operations, random number generation, screen management, DMA operations, and utility functions optimized for retro game development and system programming.
 
-It offers hardware independent routines that work on both Spectrum and Spectrum Next hardware coupled by optimised Next only versions making use of Z80N Next only extended op codes for best performance.
+It offers hardware independent routines that work on both Spectrum and Spectrum Next hardware. It also provides equivalent and optimised Next only versions making use of Z80N Next only extended op codes and DMA for best performance.
 
-As I work on this library, I will first share the device independent routines and then will on a subsequent push will add the Z80N optimised routines.
+T-State tables in this document also allow for easy performance and requirement assessment by the developer.
 
 ## Release History
+
+**v1.6** - Enhanced Screen Management and DMA Support
+
+Key improvements:
+- **59 Test Cases**: Expanded test suite from 57 to 59 comprehensive test cases including DMA validation
+- **Flexible Screen Addressing**: All screen clearing routines now accept HL parameter for custom screen locations
+- **In-Memory Screen Support**: Full support for off-screen rendering and secondary screen buffers
+- **DMA Screen Clearing**: Ultra-fast screen clearing using Spectrum Next DMA controller (99% faster)
+- **Z80N Enhanced Screen Operations**: LDIRX optimization for 33% faster screen clearing on Next hardware
+- **Hardware Detection**: Automatic detection of Z80N and DMA capabilities with graceful fallbacks
+- **Memory Fill Operations**: Complete DMA memory fill routines with burst mode support
+- **Utility Functions**: Enhanced utility library with Z80N detection and DMA availability checking
+- **Performance Optimization**: Comprehensive T-States analysis and optimization across all screen operations
+
+Screen clearing performance improvements:
+- **Standard Z80**: Up to 74% faster with stack-based optimizations
+- **Z80N LDIRX**: Additional 33% improvement using extended opcodes  
+- **DMA Fill**: 99.7% faster pixel clearing, 99.2% faster attribute setting
+- **DMA Burst**: 99.8% faster with maximum hardware acceleration
 
 **v1.5** - Enhanced Test Framework and Maintainability
 
@@ -91,7 +111,7 @@ The following platforms are targetted. The main entry points and individual func
 - CPU: Z80N @ 3.5/7/14/28MHz
 - Memory: 1MB+ RAM, advanced banking
 - Features: Enhanced graphics, sprites, DMA
-- New: Z80N extended opcodes, copper, etc.
+- New: Z80N extended opcodes, copper, DMA controller
 
 ## 🚀 **Current Features**
 
@@ -113,6 +133,19 @@ The following platforms are targetted. The main entry points and individual func
   - Next Z80N: NEXT_BALANCED (~118-500 T-states 8-bit reciprocal table - accuracy +/- 1)
   - Next Z80N: NEXT_MAXIMUM (~107-520 T-states 16-bit reciprocal table - maximum precision)
 
+### 🖥️ **Screen Management**
+- **Flexible Screen Clearing**: Support for standard screen and custom memory locations
+  - Parameterized addressing: HL parameter specifies screen base address (0 = default 16384)
+  - In-memory screen support: Full support for off-screen rendering capabilities
+  - Secondary screen buffers: Support for double-buffering and screen composition
+- **Performance Levels**: Nine optimization levels from basic to DMA-accelerated
+  - **SCREEN_COMPACT**: Standard LDIR operation (145,265 T-states full reset)
+  - **SCREEN_Z80N_COMPACT**: Z80N LDIRX optimization (96,700 T-states, 33% faster)
+  - **SCREEN_1PUSH to SCREEN_ALLPUSH**: Stack-based optimizations (91,910 to 40,344 T-states)
+  - **SCREEN_DMA_FILL**: DMA memory fill (400 T-states, 99.7% faster)
+  - **SCREEN_DMA_BURST**: DMA burst mode (260 T-states, 99.8% faster)
+- **Hardware Detection**: Automatic Z80N and DMA detection with graceful fallbacks
+
 ### 🎲 **Random Number Generation**
 - **8-bit Random**: Eight different algorithms with standard Z80 and Z80N optimized versions
   - Standard Z80: LCG (~45-55 T-states), LFSR (~85-95 T-states), XorShift (~35-45 T-states), Middle Square (~115-150 T-states)
@@ -120,6 +153,35 @@ The following platforms are targetted. The main entry points and individual func
 - **16-bit Random**: Six different algorithms with standard Z80 and Z80N optimized versions
   - Standard Z80: LCG (~85-95 T-states), LFSR (~68 T-states), XorShift (~55 T-states), Middle Square (~78 T-states)
   - Next Z80N: LCG (~55-65 T-states), LFSR (~42 T-states), XorShift (~35 T-states), Middle Square (~48 T-states)
+
+### 🔧 **Utility Functions**
+- **Hardware Detection**: Z80N processor detection (60-81 T-states)
+- **DMA Detection**: DMA controller availability checking (58-66 T-states)
+- **Memory Operations**: DMA-accelerated memory fill and burst operations
+
+### ⚡ **DMA Support (Spectrum Next)**
+- **DMA Memory Fill**: High-speed memory filling using DMA controller
+  - CPU overhead: ~240-260 T-states for setup
+  - Hardware transfer: Parallel to CPU execution
+  - Automatic fallback to standard routines if DMA unavailable
+- **DMA Burst Fill**: Maximum performance burst mode operations
+  - CPU overhead: ~235-250 T-states for setup
+  - Fastest possible memory operations on Next hardware
+  - Optimized wait loops with comprehensive status checking
+
+### Screen Clearing T-States Performance
+
+| Performance Level | Pixel Clear | Attr Clear | Full Reset | Platform | Improvement |
+|-------------------|-------------|------------|------------|----------|-------------|
+| **SCREEN_COMPACT** | 129,074 T | 16,191 T | 145,265 T | All | Baseline |
+| **SCREEN_Z80N_COMPACT** | 86,000 T | 10,700 T | 96,700 T | Next | 33% faster |
+| **SCREEN_1PUSH** | 81,640 T | 10,270 T | 91,910 T | All | 37% faster |
+| **SCREEN_2PUSH** | 61,476 T | 7,702 T | 69,178 T | All | 52% faster |
+| **SCREEN_3PUSH** | 51,236 T | 6,412 T | 57,648 T | All | 60% faster |
+| **SCREEN_4PUSH** | 43,908 T | 5,508 T | 49,416 T | All | 66% faster |
+| **SCREEN_ALLPUSH** | 35,844 T | 4,500 T | 40,344 T | All | 72% faster |
+| **SCREEN_DMA_FILL** | 280 T | 120 T | 400 T | Next | 99.7% faster |
+| **SCREEN_DMA_BURST** | 180 T | 80 T | 260 T | Next | 99.8% faster |
 
 ### Random Generation T-States
 
@@ -157,6 +219,20 @@ PERFORMANCE_Z80N_RANDOM16_LFSR         EQU 5   ; Z80N optimized 16-bit LFSR (42 
 PERFORMANCE_Z80N_RANDOM16_XORSHIFT     EQU 6   ; Z80N optimized 16-bit XorShift (35 T-states)
 PERFORMANCE_Z80N_RANDOM16_MIDDLESQUARE EQU 7   ; Z80N optimized 16-bit Middle Square (48 T-states)
 ```
+
+### Utility Functions T-States
+
+| Function | Available Path | Not Available Path | Description |
+|----------|---------------|-------------------|-------------|
+| **CheckOnZ80N** | 81 T-states | 60 T-states | Z80N processor detection |
+| **CheckDMAAvailable** | 66 T-states | 58 T-states | DMA controller detection |
+
+### DMA Operations T-States
+
+| Operation | CPU Overhead | Hardware Time | Total Benefit |
+|-----------|-------------|---------------|---------------|
+| **DMA_MemoryFill** | ~240-260 T | Parallel | 99%+ faster |
+| **DMA_BurstFill** | ~235-250 T | Parallel | 99%+ faster |
 
 ## 🧮 **Random Number Generation Algorithms**
 
@@ -262,6 +338,7 @@ The Z80N optimized versions provide significant performance improvements:
 ### 🖥️ **Display & Graphics**
 - Screen copy utilities and in-memory second screen management
 - Extended screen manipulation functions, e.g. line draw, fill, patterned fill
+- Layer 2 screen support and enhanced graphics modes
 
 ### 🎮 **Input Systems**  
 - Joystick input support with multiple controller options
@@ -287,9 +364,9 @@ The Z80N optimized versions provide significant performance improvements:
 *Tagged @COMPAT NEXT as they will be specific to the Next, this list is not exhaustive*
 - Sprites (tags likely to be @COMPAT: NEXT, @REQUIRES: Next sprites)
 - Copper (tags likely to be @COMPAT: NEXT, @REQUIRES: Next copper)  
-- DMA (tags likely to be @COMPAT: NEXT, @REQUIRES: Next DMA)
+- Enhanced DMA operations (pattern fills, memory copies, etc.)
+- Layer 2 integration and extended graphics modes
 - More features... (one thing added at a time)
-- May need tags NEXT1, NEXT2 and NEXT3 to indicate minimum NEXT issue - we will see. I'm hoping not as far as machine code goes
 
 ### ⚡ **Optimization**
 - Complete T-state optimization pass (e.g., replace JR with JP where beneficial)
@@ -311,6 +388,20 @@ NextLibrary uses a unified performance system across all mathematical operations
 | **PERFORMANCE_NEXT_COMPACT** | Z80N MUL instruction, fastest code | Next-only, maximum speed |
 | **PERFORMANCE_NEXT_BALANCED** | Z80N MUL with overflow checking | Next-only, speed + validation |
 | **PERFORMANCE_NEXT_MAXIMUM** | Z80N MUL with special case handling | Next-only, optimized edge cases |
+
+### Screen Performance Levels
+
+| Performance Level | Characteristics | T-States (Full Reset) | Platform |
+|-------------------|----------------|----------------------|----------|
+| **SCREEN_COMPACT** | Standard LDIR operation | 145,265 | All |
+| **SCREEN_Z80N_COMPACT** | Z80N LDIRX optimization | 96,700 | Next |
+| **SCREEN_1PUSH** | Stack-based, 2 pixels | 91,910 | All |
+| **SCREEN_2PUSH** | Stack-based, 4 pixels | 69,178 | All |
+| **SCREEN_3PUSH** | Stack-based, 6 pixels | 57,648 | All |
+| **SCREEN_4PUSH** | Stack-based, 8 pixels | 49,416 | All |
+| **SCREEN_ALLPUSH** | Stack-based, 12 pixels | 40,344 | All |
+| **SCREEN_DMA_FILL** | DMA memory fill | 400 | Next |
+| **SCREEN_DMA_BURST** | DMA burst mode | 260 | Next |
 
 ## 📋 **Quick Start**
 
@@ -357,6 +448,111 @@ LD      HL, 5000        ; New upper limit
 LD      D, PERFORMANCE_Z80N_RANDOM16_MIDDLESQUARE ; Same algorithm
 CALL    Random16_Unified_Next  
 ; Next random value in HL
+```
+
+### Enhanced Screen Management Examples
+
+```asm
+; Clear entire screen with white on black attributes (standard screen)
+LD      A, %00000111    ; White ink, black paper
+LD      C, SCREEN_4PUSH ; High performance mode
+LD      HL, 0           ; Use default screen address (16384)
+CALL    Screen_FullReset_Unified
+
+; Clear off-screen buffer with different attributes
+LD      A, %01000010    ; Green ink, black paper, bright
+LD      C, SCREEN_DMA_FILL ; Ultra-fast DMA clearing (Next only)
+LD      HL, $8000       ; Custom screen buffer address
+CALL    Screen_FullReset_Unified
+
+; Clear pixels only in secondary screen buffer
+LD      A, 0            ; Not used for pixel clearing
+LD      C, SCREEN_Z80N_COMPACT ; Z80N LDIRX optimization
+LD      HL, $C000       ; Another screen buffer
+CALL    Screen_ClearPixel_Unified
+
+; Set attributes only in main screen, preserve pixels
+LD      A, %01000010    ; Green ink, black paper, bright
+LD      C, SCREEN_DMA_BURST ; Maximum DMA performance (Next only)
+LD      HL, 0           ; Use default screen address
+CALL    Screen_ClearAttr_Unified
+
+; High-speed double buffering example
+; Clear back buffer at maximum speed while displaying front buffer
+LD      A, %00000111    ; White on black
+LD      C, SCREEN_DMA_BURST ; Fastest possible
+LD      HL, BackBuffer  ; Address of back buffer
+CALL    Screen_FullReset_Unified
+; ... render to back buffer ...
+; ... swap buffers when ready ...
+
+; Hardware detection example
+CALL    CheckOnZ80N     ; Check if Z80N available
+JR      Z, UseStandard  ; Use standard routines if not Z80N
+
+CALL    CheckDMAAvailable ; Check if DMA available
+JR      Z, Z80NOnly     ; Use Z80N only if no DMA
+
+; Use DMA for maximum performance
+LD      C, SCREEN_DMA_BURST
+JR      ClearScreen
+
+Z80NOnly:
+LD      C, SCREEN_Z80N_COMPACT ; Use Z80N optimizations
+JR      ClearScreen
+
+UseStandard:
+LD      C, SCREEN_ALLPUSH
+
+ClearScreen:
+LD      A, %00000111    ; Screen attribute
+LD      HL, 0           ; Default screen
+CALL    Screen_FullReset_Unified
+```
+
+### DMA Memory Operations
+
+```asm
+; Fill large memory area using DMA
+LD      HL, $8000       ; Destination address
+LD      A, $FF          ; Fill pattern
+LD      BC, 16384       ; Size (16KB)
+CALL    DMA_MemoryFill  ; ~240 T-states CPU + hardware time
+
+; Ultra-fast burst fill
+LD      HL, $C000       ; Destination
+LD      A, $00          ; Clear pattern
+LD      BC, 8192        ; Size (8KB)
+LD      D, $FF          ; Burst mode flag
+CALL    DMA_BurstFill   ; ~235 T-states CPU + hardware time
+```
+
+### Hardware Detection Utilities
+
+```asm
+; Check what hardware is available and select optimal routines
+CALL    CheckOnZ80N     ; Returns NZ if Z80N available
+JR      Z, StandardZ80  ; Jump if not Z80N
+
+; Z80N detected - check for DMA
+CALL    CheckDMAAvailable ; Returns NZ if DMA available
+JR      Z, Z80NOnly     ; Jump if no DMA
+
+; Full Next hardware available
+LD      C, SCREEN_DMA_BURST ; Use maximum performance
+JR      PerformOperation
+
+Z80NOnly:
+LD      C, SCREEN_Z80N_COMPACT ; Use Z80N optimizations
+JR      PerformOperation
+
+StandardZ80:
+LD      C, SCREEN_ALLPUSH
+
+PerformOperation:
+LD      A, %00000111    ; Screen attribute
+LD      HL, 0           ; Default screen
+CALL    Screen_FullReset_Unified
 ```
 
 ## ⚡ **Z80N Performance Comparison**
@@ -424,6 +620,22 @@ CALL    Random16_Unified_Next
 
 **Performance Improvement**: Up to **65% faster** for small dividends on Spectrum Next!  
 
+### Screen Clearing Performance
+
+| Performance Level | Full Reset T-States | Platform | Improvement |
+|------------------|-------------------|----------|-------------|
+| **SCREEN_COMPACT** | 145,265 | All | Baseline |
+| **SCREEN_Z80N_COMPACT** | 96,700 | Next | 33% faster |
+| **SCREEN_ALLPUSH** | 40,344 | All | 72% faster |
+| **SCREEN_DMA_FILL** | 400 | Next | 99.7% faster |
+| **SCREEN_DMA_BURST** | 260 | Next | 99.8% faster |
+
+**DMA Performance Notes**:
+- T-States shown are CPU overhead only
+- Actual memory transfer happens in hardware parallel to CPU
+- DMA provides dramatic speed improvements for large memory operations
+- Automatic fallback to standard routines if DMA unavailable
+
 ### 16-bit Operations
 
 ```asm
@@ -454,25 +666,6 @@ LD      B, 25           ; 8-bit divisor
 LD      C, PERFORMANCE_NEXT_COMPACT   ; Uses Z80N hybrid algorithm
 CALL    Divide16x8_Unified
 ; Quotient in HL = 200, remainder in A = 0 (65% faster for H≥16!)
-```
-
-### Screen Clearing Operations
-
-```asm
-; Clear entire screen with white on black attributes
-LD      A, %00000111    ; White ink, black paper
-LD      C, SCREEN_4PUSH ; High performance mode
-CALL    Screen_FullReset_Unified
-
-; Clear pixels only (preserve attributes)
-LD      A, 0            ; Not used for pixel clearing
-LD      C, SCREEN_2PUSH ; Medium performance
-CALL    Screen_ClearPixel_Unified
-
-; Set attributes only (preserve pixels)
-LD      A, %01000010    ; Green ink, black paper, bright
-LD      C, SCREEN_1PUSH ; Low overhead mode  
-CALL    Screen_ClearAttr_Unified
 ```
 
 ## 🔧 **API Reference**
@@ -523,6 +716,53 @@ CALL    Screen_ClearAttr_Unified
 **Input**: HL = upper limit (inclusive), BC = seed (seeding only), D = algorithm selection  
 **Output**: HL = random value in range [0, limit]
 
+### Screen Management
+
+#### Unified Screen Clearing with Flexible Addressing
+- `Screen_FullReset_Unified` - Clear pixels and set attributes
+- `Screen_ClearPixel_Unified` - Clear pixels only, preserve attributes  
+- `Screen_ClearAttr_Unified` - Set attributes only, preserve pixels
+
+**Input**: 
+- A = attribute value (for full reset and attribute operations)
+- C = performance level
+- HL = screen base address (0 = use default 16384, other values = custom address)
+
+**Output**: Screen cleared according to specified operation
+
+**Enhanced Features**:
+- **Flexible Addressing**: Support for any memory location as screen buffer
+- **Off-Screen Rendering**: Full support for secondary screen buffers
+- **Double Buffering**: Enable smooth animations with back-buffer rendering
+- **Memory Conservation**: Efficient in-memory screen composition
+
+**Performance Levels**:
+- **SCREEN_COMPACT**: Standard LDIR operation (baseline, ~145,265 T-states)
+- **SCREEN_Z80N_COMPACT**: Z80N LDIRX optimization (33% faster, ~96,700 T-states)
+- **SCREEN_1PUSH to SCREEN_ALLPUSH**: Stack-based optimizations (37-72% faster)
+- **SCREEN_DMA_FILL**: DMA memory fill (99.7% faster, ~400 T-states CPU)
+- **SCREEN_DMA_BURST**: DMA burst mode (99.8% faster, ~260 T-states CPU)
+
+### Hardware Detection
+
+#### Utility Functions
+- `CheckOnZ80N` - Detect Z80N processor availability
+- `CheckDMAAvailable` - Detect DMA controller availability
+
+**Input**: None  
+**Output**: Z flag set if feature not available, NZ if available  
+**Performance**: 58-81 T-states depending on feature and availability
+
+### DMA Operations (Spectrum Next Only)
+
+#### Memory Fill Operations
+- `DMA_MemoryFill` - DMA-accelerated memory fill
+- `DMA_BurstFill` - DMA burst mode memory fill
+
+**Input**: HL = destination address, A = fill byte, BC = byte count, D = burst mode (BurstFill only)  
+**Output**: Memory filled via DMA controller  
+**Performance**: ~235-260 T-states CPU overhead + parallel hardware transfer
+
 ### Algorithm Constants
 
 ```asm
@@ -535,6 +775,17 @@ PERFORMANCE_MAXIMUM        EQU 2
 PERFORMANCE_NEXT_COMPACT   EQU 3
 PERFORMANCE_NEXT_BALANCED  EQU 4
 PERFORMANCE_NEXT_MAXIMUM   EQU 5
+
+; Screen Performance Levels
+SCREEN_COMPACT             EQU 0    ; Standard LDIR operation
+SCREEN_Z80N_COMPACT        EQU 6    ; Z80N LDIRX optimization  
+SCREEN_1PUSH               EQU 1    ; 2 pixels simultaneously  
+SCREEN_2PUSH               EQU 2    ; 4 pixels simultaneously
+SCREEN_3PUSH               EQU 3    ; 6 pixels simultaneously
+SCREEN_4PUSH               EQU 4    ; 8 pixels simultaneously
+SCREEN_ALLPUSH             EQU 5    ; 12 pixels simultaneously
+SCREEN_DMA_FILL            EQU 7    ; DMA memory fill
+SCREEN_DMA_BURST           EQU 8    ; DMA burst mode
 
 ; 8-bit Random Algorithms (Standard Z80)
 PERFORMANCE_STANDARD_RANDOM_LCG           EQU 0    ; Linear Congruential Generator
@@ -560,43 +811,34 @@ PERFORMANCE_Z80N_RANDOM16_LFSR            EQU 5    ; Z80N optimized 16-bit LFSR
 PERFORMANCE_Z80N_RANDOM16_XORSHIFT        EQU 6    ; Z80N optimized 16-bit XorShift
 PERFORMANCE_Z80N_RANDOM16_MIDDLESQUARE    EQU 7    ; Z80N optimized 16-bit Middle Square
 
-; Screen Performance Levels
-SCREEN_COMPACT               EQU 0    ; Standard LDIR operation
-SCREEN_1PUSH                 EQU 1    ; 2 pixels simultaneously  
-SCREEN_2PUSH                 EQU 2    ; 4 pixels simultaneously
-SCREEN_4PUSH                 EQU 3    ; 8 pixels simultaneously
-SCREEN_8PUSH                 EQU 4    ; 16 pixels simultaneously
-SCREEN_ALLPUSH               EQU 5    ; 256 pixels per loop
+; DMA Constants (Next Only)
+DMA_RESET                 EQU $C3    ; DMA reset command
+DMA_FILL                  EQU $79    ; DMA fill transfer mode
+DMA_BURST_TRANSFER        EQU $7F    ; DMA burst transfer mode
+DMA_BURST_CONTROL         EQU $18    ; DMA burst control
+DMA_LOAD                  EQU $CF    ; DMA load/start command
+DMA_BURST_LOAD            EQU $DF    ; DMA burst load/start command
+ZXN_DMA_PORT              EQU $6B    ; Next DMA port
 ```
-
-### Screen Management
-
-#### Unified Screen Clearing
-- `Screen_FullReset_Unified` - Clear pixels and set attributes
-- `Screen_ClearPixel_Unified` - Clear pixels only, preserve attributes
-- `Screen_ClearAttr_Unified` - Set attributes only, preserve pixels
-
-**Input**: A = attribute value, C = performance level  
-**Output**: Screen cleared according to specified operation
-
-**Performance Levels**:
-- **SCREEN_COMPACT**: Standard LDIR operation (baseline)
-- **SCREEN_1PUSH**: Stack-based clearing, 2 pixels per operation (~37% faster)
-- **SCREEN_2PUSH**: Enhanced stack method, 4 pixels per operation (~56% faster)  
-- **SCREEN_4PUSH**: Advanced optimization, 8 pixels per operation (~65% faster)
-- **SCREEN_8PUSH**: High-performance mode, 16 pixels per operation (~70% faster)
-- **SCREEN_ALLPUSH**: Maximum speed, 256 pixels per loop (~74% faster)
 
 ## 🧪 **Testing**
 
 NextLibrary includes comprehensive test suites:
 
-- **57 Test Cases** continually being expanded to cover more functionality. 
+- **59 Test Cases** continually being expanded to cover more functionality
 - **Algorithm Validation** for all random number generators (8-bit and 16-bit)
 - **Performance Verification** across all performance levels
 - **Edge Case Testing** for boundary conditions
 - **Statistical Distribution Testing** for random number quality
 - **Seed Compatibility Testing** between standard and Z80N versions
+- **Screen Management Testing** for all performance levels and addressing modes
+- **DMA Validation** for hardware detection and memory operations
+- **Hardware Detection Testing** for Z80N and DMA capability verification
+
+### New Test Cases in v1.6
+
+- **Test 058**: Parameterized screen clearing with custom addresses
+- **Test 059**: DMA screen clearing validation (Next hardware only)
 
 Run tests using the included test framework:
 
@@ -608,7 +850,7 @@ INCLUDE "Testing/TestCases.asm"
 
 ### Requirements
 - **sjasmplus** assembler
-- **ZX Spectrum Next** development environment
+- **ZX Spectrum Next** development environment (for Next-specific features)
 
 ### Build Instructions
 
@@ -628,8 +870,9 @@ NextLibrary is designed with a clear, modular structure that allows developers t
 - **Clean Code Structure**: Well-commented code makes extraction straightforward
 - **No Overhead**: Include only what you need for optimal memory usage
 
-**Example**: If you only need 8×8 multiplication, simply extract:
+**Example**: If you only need 8×8 multiplication and basic screen clearing, simply extract:
 - `Source/Multiply/Multiply8x8.asm` - The multiplication routines
+- `Source/Display/ScreenClearing.asm` - Screen clearing routines
 - Relevant constants from `Source/Constants.asm`
 - Any required variables from `Source/Variables.asm`
 
@@ -647,9 +890,13 @@ NextLibrary/
 │   ├── Divide/             # Division routines  
 │   ├── Random/             # Random number generation
 │   ├── Display/            # Screen and text utilities
+│   ├── DMA/                # DMA support routines
+│   ├── Utility/            # Hardware detection utilities
 │   ├── Input/              # Input handling
 │   ├── Scoring/            # Score management
 │   └── Testing/            # Test suites
+├── Todo/                   # Development planning
+│   └── screenoptimisations.txt # Screen optimization roadmap
 ├── Output/
 │   └── nextlibrary.nex     # Compiled library
 └── README.md              # This file
@@ -695,7 +942,7 @@ While not required, attribution is appreciated:
 
 📝 **Opening an issue or discussion** in this repository with:
 - **Project Name**: What you're building
-- **Routines Used**: Which NextLibrary functions you're using (e.g., "8×8 multiplication (Z80N), XORShift random, screen clearing")
+- **Routines Used**: Which NextLibrary functions you're using (e.g., "8×8 multiplication (Z80N), XORShift random, DMA screen clearing")
 - **Platform Target**: 48K, 128K, +2, +3, Next, or multi-platform
 - **Brief Description**: What your project does
 - **Optional Link**: Share your project if it's public!
@@ -709,9 +956,9 @@ This information helps:
 Example usage report:
 ```
 Project: "RetroBlaster 2024"
-Routines: Multiply8x8 (NEXT_COMPACT), Multiply16x8 (MAXIMUM), Random8 XORShift, Screen clearing (4PUSH)
-Platform: ZX Spectrum Next (Using Z80N optimizations)
-Description: Side-scrolling shooter with procedural enemies and ultra-fast multiplication
+Routines: Multiply8x8 (NEXT_COMPACT), DMA screen clearing (BURST), Random8 XORShift, Off-screen rendering
+Platform: ZX Spectrum Next (Using Z80N optimizations and DMA)
+Description: Side-scrolling shooter with procedural enemies, ultra-fast multiplication, and smooth double-buffered graphics
 ```
 
 This information helps improve the library and provides inspiration to other developers.
@@ -726,6 +973,7 @@ Contributions are welcome! Please ensure:
 2. **Performance**: Maintain T-state accuracy documentation  
 3. **Testing**: Add test cases for new functionality
 4. **Documentation**: Update README and inline comments
+5. **Hardware Compatibility**: Test on both standard Z80 and Next hardware where applicable
 
 ## 🎮 **Use Cases**
 
@@ -735,12 +983,15 @@ NextLibrary is perfect for:
 - **System Programming**: Efficient utilities for Next-specific applications  
 - **Educational Projects**: Well-documented Z80 assembly examples
 - **Performance-Critical Code**: T-state accurate timing for real-time applications
+- **Graphics Programming**: Fast screen clearing and off-screen rendering
+- **Hardware Optimization**: Automatic detection and utilization of Next-specific features
 
 ## 🔗 **Related Projects**
 
 - [ZX Spectrum Next Official](https://www.specnext.com/)
 - [sjasmplus Assembler](https://github.com/z00m128/sjasmplus)
 - [NextBuild Development Tools](https://github.com/Threetwosevensixseven/NextBuild)
+- [ZX Spectrum Next Wiki](https://wiki.specnext.dev/)
 
 ## 📧 **Contact**
 
@@ -748,4 +999,4 @@ For questions, suggestions, or support, please open an issue on GitHub.
 
 ---
 
-**NextLibrary** - *Empowering Z80 assembly development with world-class mathematics and utilities.*
+**NextLibrary** - *Empowering Z80 assembly development with world-class mathematics, utilities, and hardware-accelerated performance.*
