@@ -29,3 +29,17 @@ SCREEN_2PUSH                            EQU     2       ; Sets 4 pixels simultan
 SCREEN_4PUSH                            EQU     3       ; Sets 8 pixels simultaneously, even faster but slightly larger code overhead.
 SCREEN_8PUSH                            EQU     4       ; Sets 16 pixels simultaneously, fastest but largest code overhead with loops.
 SCREEN_ALLPUSH                          EQU     5       ; Sets all 2,048 pixels (256 bytes) simultaneously, maximum speed but very large code overhead.
+SCREEN_Z80N_COMPACT                     EQU     6       ; Standard LDIR operation, slowest but most compact code - Next only compatible choice.
+SCREEN_DMA_FILL                         EQU     7       ; Uses Spectrum Next DMA to fill screen, hardware fast speed but requires Spectrum Next with DMA architecture.
+SCREEN_DMA_BURST                        EQU     8       ; Uses Spectrum Next DMA Burst mode to fill screen, maximum speed but requires Spectrum Next with DMA architecture.
+
+; DMA Constants
+DMA_BURST_CONTROL                       EQU     $18
+DMA_BURST_LOAD                          EQU     $DF
+DMA_BURSTMODE                           EQU     $FF
+DMA_BURST_TRANSFER                      EQU     $7F
+DMA_FUNCTION_CONTROL                    EQU     $14
+DMA_FILL                                EQU     $79
+DMA_LOAD                                EQU     $CF
+DMA_RESET                               EQU     $C3
+ZXN_DMA_PORT                            EQU     $6B

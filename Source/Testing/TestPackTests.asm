@@ -1,6 +1,7 @@
 
-TestPackTests:      LD      A, 0x07                            ; Set default attribute (white on black)
-                    LD      C, SCREEN_2PUSH
+TestPackTests:      LD      HL, 0                              ; Default screen area to ZX Spectrum screen base
+                    LD      A, 0x07                            ; Set default attribute (white on black)
+                    LD      C, SCREEN_DMA_BURST                ; SCREEN_Z80N_COMPACT
                     CALL    Screen_FullReset_Unified
                     ; Print title at top
                     LD      B, 0                               ; Row 0 (top)
@@ -13,7 +14,7 @@ TestPackTests:      LD      A, 0x07                            ; Set default att
                     CALL    SetCursor
                     ; Initialize test loop
                     LD      HL, TestCaseTable                   ; HL points to test case address table
-                    LD      B, 57                               ; Total number of tests
+                    LD      B, 59                               ; Total number of tests
                     XOR     A                                   ; Test counter for printing, start at zero
 RunNextTest:        INC     A                                   ; Increment test case number
                     PUSH    AF                                  ; Preserve test case number
@@ -126,3 +127,5 @@ TestCaseTable:      DW      TestCase001             ; Test 1: 5 × 3 = 15
                     DW      TestCase055             ; Test 55: Z80N 16-bit LFSR Random Generation
                     DW      TestCase056             ; Test 56: Z80N 16-bit XorShift Random Generation
                     DW      TestCase057             ; Test 57: Z80N 16-bit Middle Square Random Generation
+                    DW      TestCase058             ; Test 58: Z80N Detection
+                    DW      TestCase059             ; Test 59: DMA Available Detection
