@@ -42,6 +42,7 @@ File structure improvements:
 - **Modular Constants**: Separate files for Maths, Random, Display, and DMA constants
 - **Organized Variables**: Domain-specific variable files for cleaner partial library usage
 - **Developer Friendly**: Extract only needed components without dependency overhead
+
 **v1.6** - Enhanced Screen Management and DMA Support
 
 Key improvements:
