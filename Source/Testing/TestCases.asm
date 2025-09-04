@@ -57,3 +57,6 @@
                 INCLUDE "TestCase057.asm"  ; Random 16-bit Middle Square for Next Only, using Z80N op codes
                 INCLUDE "TestCase058.asm"  ; Z80N Detection
                 INCLUDE "TestCase059.asm"  ; DMA Available Detection
+                INCLUDE "TestCase060.asm"  ; Check for Active Layer 2
+                INCLUDE "TestCase061.asm"  ; Get Active Layer 2 Screen Address
+                INCLUDE "TestCase062.asm"  ; Get Active Layer 2 Info

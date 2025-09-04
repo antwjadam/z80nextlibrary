@@ -8,15 +8,25 @@
 ;
 ; T-States summary shows:
 ;
-; SCREEN_COMPACT: Standard LDIR operation       - Pixel Only ~129,074 T-States, Attribute Only ~16,191 T-States, Full Reset ~145,265 T-States
+; Performance T-States Summary (Updated for v1.7):
+; 
+; SCREEN_COMPACT: Standard LDIR operation        - Pixel Only ~129,074 T-States, Attribute Only ~16,191 T-States, Full Reset ~145,265 T-States
 ; SCREEN_Z80N_COMPACT: Z80N LDIRX operation      - Pixel Only ~86,000 T-States, Attribute Only ~10,700 T-States, Full Reset ~96,700 T-States (33% faster)
-; SCREEN_1PUSH: Sets 2 pixels simultaneously    - Pixel Only ~81,640 T-States, Attribute Only ~10,270 T-States, Full Reset ~91,910 T-States
-; SCREEN_2PUSH: Sets 4 pixels simultaneously    - Pixel Only ~61,476 T-States, Attribute Only ~7,702 T-States, Full Reset ~69,178 T-States
-; SCREEN_3PUSH: Sets 6 pixels simultaneously    - Pixel Only ~51,236 T-States, Attribute Only ~6,412 T-States, Full Reset ~57,648 T-States
-; SCREEN_4PUSH: Sets 8 pixels simultaneously    - Pixel Only ~43,908 T-States, Attribute Only ~5,508 T-States, Full Reset ~49,416 T-States
+; SCREEN_1PUSH: Sets 2 pixels simultaneously     - Pixel Only ~81,640 T-States, Attribute Only ~10,270 T-States, Full Reset ~91,910 T-States
+; SCREEN_2PUSH: Sets 4 pixels simultaneously     - Pixel Only ~61,476 T-States, Attribute Only ~7,702 T-States, Full Reset ~69,178 T-States
+; SCREEN_3PUSH: Sets 6 pixels simultaneously     - Pixel Only ~51,236 T-States, Attribute Only ~6,412 T-States, Full Reset ~57,648 T-States
+; SCREEN_4PUSH: Sets 8 pixels simultaneously     - Pixel Only ~43,908 T-States, Attribute Only ~5,508 T-States, Full Reset ~49,416 T-States
 ; SCREEN_ALLPUSH: Sets 12 pixels simultaneously  - Pixel Only ~35,844 T-States, Attribute Only ~4,500 T-States, Full Reset ~40,344 T-States
 ; SCREEN_DMA_FILL: DMA memory fill operation     - Pixel Only ~280 T-States, Attribute Only ~120 T-States, Full Reset ~400 T-States (99% faster)
 ; SCREEN_DMA_BURST: DMA burst fill operation     - Pixel Only ~180 T-States, Attribute Only ~80 T-States, Full Reset ~260 T-States (99.4% faster)
+; SCREEN_LAYER2_MANUAL_256by192: LDIRX           - Next Only - Full Reset only for Layer 2 takes ~400 T-States
+; SCREEN_LAYER2_MANUAL_320by256: LDIRX           - Next Only - Full Reset only for Layer 2 takes ~500 T-States
+; SCREEN_LAYER2_MANUAL_640by256: LDIRX           - Next Only - Full Reset only for Layer 2 takes ~800 T-States
+; SCREEN_LAYER2_MANUAL_DMA_256by192: DMA BURST   - Next Only - Full Reset only for Layer 2 takes ~260 T-States
+; SCREEN_LAYER2_MANUAL_DMA_320by256: DMA BURST   - Next Only - Full Reset only for Layer 2 takes ~350 T-States
+; SCREEN_LAYER2_MANUAL_DMA_640by256: DMA BURST   - Next Only - Full Reset only for Layer 2 takes ~600 T-States
+; SCREEN_LAYER2_AUTO_ACTIVE: LDIRX               - Next Only - Variable by resolution: 256×192 (~400 T-states), 320×256 (~500 T-states), 640×256 (~800 T-states)
+; SCREEN_LAYER2_AUTO_DMA: DMA BURST              - Next Only - Variable by resolution: 256×192 (~260 T-states), 320×256 (~350 T-states), 640×256 (~600 T-states)
 ;
 ; @COMPAT: 48K,128K,+2,+3,NEXT
 Screen_FullReset_Unified:   LD      (CurrentAttr), A                ; Set current attribute for text system.
@@ -47,6 +57,22 @@ FullResetCustomAddress:     PUSH    HL                              ; Preserve p
                             JP      Z, ScreenFullDMAFillReset
                             CP      SCREEN_DMA_BURST
                             JP      Z, ScreenFullDMABurstReset
+                            CP      SCREEN_LAYER2_MANUAL_256by192
+                            JP      Z, SetLayer2Manual256by192
+                            CP      SCREEN_LAYER2_MANUAL_320by256
+                            JP      Z, SetLayer2Manual320by256
+                            CP      SCREEN_LAYER2_MANUAL_640by256
+                            JP      Z, SetLayer2Manual640by256
+                            CP      SCREEN_LAYER2_MANUAL_DMA_256by192
+                            JP      Z, SetLayer2ManualDMA256by192
+                            CP      SCREEN_LAYER2_MANUAL_DMA_320by256
+                            JP      Z, SetLayer2ManualDMA320by256
+                            CP      SCREEN_LAYER2_MANUAL_DMA_640by256
+                            JP      Z, SetLayer2ManualDMA640by256
+                            CP      SCREEN_LAYER2_AUTO_ACTIVE
+                            JP      Z, SetLayer2AutoActive
+                            CP      SCREEN_LAYER2_AUTO_DMA
+                            JP      Z, SetLayer2AutoDMA
 
                             ; fall through to SCREEN_COMPACT
 
@@ -529,3 +555,118 @@ ScreenAttrsAllPush:         LD      (ScreenStackPointer), SP        ; Save curre
                             LD      SP, (CalculatedStackPointer)    ; Point stack to end of attr memory
                             LD      B, 3                            ; 3 × 256 = 768 bytes - we can reuse the pixel loop again.
                             JP      ClearPixel_AllPush_Loop
+;
+; @COMPAT: NEXT
+; @Z80N: LDIRX
+; @REQUIRES: Spectrum Next, Z80N architecture.
+SetLayer2Manual256by192:    PUSH    HL                              ; LDIRX Source Address
+                            POP     DE
+                            INC     DE                              ; LDIRX target Address
+                            LD      A, (CurrentAttr)                ; For Layer 2 this sets the colour we want to clear to.
+                            LD      BC, LAYER2_BYTES_256by192
+                            LD      (HL), A                         ; Set first attribute
+                            LDIRX                                   ; Set rest
+                            RET
+;
+; @COMPAT: NEXT
+; @Z80N: LDIRX
+; @REQUIRES: Spectrum Next, Z80N architecture.
+SetLayer2Manual320by256:    PUSH    HL                              ; LDIRX Source Address
+                            POP     DE
+                            INC     DE                              ; LDIRX target Address
+                            LD      A, (CurrentAttr)                ; For Layer 2 this sets the colour we want to clear to.
+                            LD      BC, LAYER2_BYTES_320by256_HALF  ; first half of 320x256
+                            LD      (HL), A                         ; Set attribute
+                            LDIRX                                   ; Set first half
+                            LD      A, (CurrentAttr)                ; For Layer 2 this sets the colour we want to clear to.
+                            LD      BC, LAYER2_BYTES_320by256_HALF  ; second half of 
+                            LD      (HL), A                         ; Set attribute
+                            LDIRX                                   ; Set second half
+                            RET
+;
+; @COMPAT: NEXT
+; @Z80N: LDIRX
+; @REQUIRES: Spectrum Next, Z80N architecture.
+SetLayer2Manual640by256:    PUSH    HL                              ; LDIRX Source Address
+                            POP     DE
+                            INC     DE                              ; LDIRX target Address
+                            LD      A, (CurrentAttr)                ; For Layer 2 this sets the colour we want to clear to.
+                            LD      BC, LAYER2_BYTES_640by256_QTR   ; first quarter of 640x256
+                            LD      (HL), A                         ; Set first attribute
+                            LDIRX                                   ; Set first quarter
+                            LD      A, (CurrentAttr)                ; For Layer 2 this sets the colour we want to clear to.
+                            LD      BC, LAYER2_BYTES_640by256_QTR   ; second quarter of 640x256
+                            LD      (HL), A                         ; Set attribute
+                            LDIRX                                   ; Set second quarter
+                            LD      A, (CurrentAttr)                ; For Layer 2 this sets the colour we want to clear to.
+                            LD      BC, LAYER2_BYTES_640by256_QTR   ; third quarter of 640x256
+                            LD      (HL), A                         ; Set attribute
+                            LDIRX                                   ; Set third quarter
+                            LD      A, (CurrentAttr)                ; For Layer 2 this sets the colour we want to clear to.
+                            LD      BC, LAYER2_BYTES_640by256_QTR   ; fourth quarter of 640x256
+                            LD      (HL), A                         ; Set attribute
+                            LDIRX                                   ; Set fourth quarter
+                            RET
+;
+; @COMPAT: NEXT
+; @REQUIRES: Spectrum Next, Z80N architecture.
+SetLayer2ManualDMA256by192: LD      A, (CurrentAttr)                ; For Layer 2 this sets the colour we want to clear to.
+                            LD      BC, LAYER2_BYTES_256by192
+                            LD      D, DMA_BURSTMODE
+                            JP      DMA_BurstFill
+;
+; @COMPAT: NEXT
+; @REQUIRES: Spectrum Next, Z80N architecture.
+SetLayer2ManualDMA320by256: LD      A, (CurrentAttr)                ; For Layer 2 this sets the colour we want to clear to.
+                            LD      BC, LAYER2_BYTES_320by256_HALF  ; first half of 320x256
+                            LD      D, DMA_BURSTMODE
+                            CALL    DMA_BurstFill
+                            LD      A, (CurrentAttr)                ; For Layer 2 this sets the colour we want to clear to.
+                            LD      BC, LAYER2_BYTES_320by256_HALF  ; second half of 320x256
+                            LD      D, DMA_BURSTMODE
+                            JP      DMA_BurstFill
+;
+; @COMPAT: NEXT
+; @REQUIRES: Spectrum Next, Z80N architecture.
+SetLayer2ManualDMA640by256: LD      A, (CurrentAttr)                ; For Layer 2 this sets the colour we want to clear to.
+                            LD      BC, LAYER2_BYTES_640by256_QTR   ; first quarter of 640x256
+                            LD      D, DMA_BURSTMODE
+                            CALL    DMA_BurstFill
+                            LD      A, (CurrentAttr)                ; For Layer 2 this sets the colour we want to clear to.
+                            LD      BC, LAYER2_BYTES_640by256_QTR   ; second quarter of 640x256
+                            LD      D, DMA_BURSTMODE
+                            CALL    DMA_BurstFill
+                            LD      A, (CurrentAttr)                ; For Layer 2 this sets the colour we want to clear to.
+                            LD      BC, LAYER2_BYTES_640by256_QTR   ; third quarter of 640x256
+                            LD      D, DMA_BURSTMODE
+                            CALL    DMA_BurstFill
+                            LD      A, (CurrentAttr)                ; For Layer 2 this sets the colour we want to clear to.
+                            LD      BC, LAYER2_BYTES_640by256_QTR   ; fourth quarter of 640x256
+                            LD      D, DMA_BURSTMODE
+                            JP      DMA_BurstFill
+;
+; @COMPAT: NEXT
+; @Z80N: LDIRX
+; @REQUIRES: Spectrum Next, Z80N architecture.
+SetLayer2AutoActive:        CALL    GetLayer2Info                  ; Get current Layer 2 info and store in variables
+                            LD      HL, (Layer2ScreenAddress)      ; Get Active Layer 2 screen address
+                            LD      A, (Layer2Resolution)          ; Check resolution mode
+                            CP      0
+                            JP      Z, SetLayer2Manual256by192
+                            CP      1
+                            JP      Z, SetLayer2Manual320by256
+                            CP      2
+                            JP      Z, SetLayer2Manual640by256
+                            RET                                     ; No active Layer 2 or unknown mode, just return.
+; @COMPAT: NEXT
+; @REQUIRES: Spectrum Next, Z80N architecture.
+SetLayer2AutoDMA:           CALL    GetLayer2Info                  ; Get current Layer 2 info and store in variables
+                            LD      HL, (Layer2ScreenAddress)      ; Get Active Layer 2 screen address
+                            LD      A, (Layer2Resolution)          ; Check resolution mode
+                            CP      0
+                            JP      Z, SetLayer2ManualDMA256by192
+                            CP      1
+                            JP      Z, SetLayer2ManualDMA320by256
+                            CP      2
+                            JP      Z, SetLayer2ManualDMA640by256
+                            RET                                     ; No active Layer 2 or unknown mode, just return.

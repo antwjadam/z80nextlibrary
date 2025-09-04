@@ -26,8 +26,8 @@ FoundDMA:               LD      A, 1                           ; Set A to 1 (boo
 ; Input: HL = Destination Address, A = fill byte, BC = Byte Count
 ;
 ; T-States summary shows:
-; Total: ~240 T-States + (19 * wait_iterations)
-; For typical transfers: ~240-260 T-States CPU time
+; CPU overhead: ~240-260 T-states (setup and wait)
+; Hardware transfer: Parallel to CPU execution
 ;
 ; @COMPAT: NEXT
 ; @REQUIRES: Spectrum Next with DMA architecture.
@@ -79,14 +79,13 @@ DMA_FillWait:           IN      A, (ZXN_DMA_PORT)
                         JR      NZ, DMA_FillWait
                         RET
 ;
-; DMA Burst Fill - fills memory using DMA controller
+; DMA Burst Fill - fills memory using DMA controller in burst mode
 ;
 ; Input: HL = Destination Address, A = fill byte, BC = Byte Count, D = Burst Mode
 ;
 ; T-States summary shows:
-; Total: ~235 T-States + (18 * wait_iterations)
-; For typical transfers: ~235-250 T-States CPU time
-; Burst mode completes faster so fewer wait iterations
+; CPU overhead: ~235-250 T-states (setup and wait)
+; Hardware transfer: Parallel to CPU execution (faster than standard DMA)
 ;
 ; @COMPAT: NEXT
 ; @REQUIRES: Spectrum Next with DMA architecture.

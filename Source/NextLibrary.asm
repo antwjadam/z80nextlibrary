@@ -2,7 +2,10 @@
                 DEVICE  ZXSPECTRUMNEXT
                 ORG     0x8000
 
-                INCLUDE "Constants.asm"                    ; Include the Constants definitions
+                INCLUDE "ConstantsMaths.asm"               ; Include the Constants definitions for Maths routines
+                INCLUDE "ConstantsRandom.asm"              ; Include the Constants definitions for Random routines
+                INCLUDE "ConstantsDisplay.asm"             ; Include the Constants definitions for Display routines
+                INCLUDE "ConstantsDMA.asm"                 ; Include the Constants definitions for DMA routines
 
 StartAddress:   ; Main program entry point
                 LD      (OriginalStack), SP                ; Save original stack pointer first
@@ -30,7 +33,10 @@ TestPack:       INCLUDE "Testing/TestPackFramework.asm"    ; Include the Test Pa
                 INCLUDE "Testing/TestPackTests.asm"        ; Include the Test Pack Tests Executor
                 INCLUDE "Testing/TestCases.asm"            ; Include all test cases
 
-                INCLUDE "Variables.asm"                    ; Include the Variables definitions
+                INCLUDE "Variables.asm"                    ; Include global Variables definitions
+                INCLUDE "VariablesDisplay.asm"             ; Include the Display Variables definitions
+                INCLUDE "VariablesRandom.asm"              ; Include the Random Variables definitions
+                INCLUDE "VariablesDMA.asm"                 ; Include the DMA Variables definitions
 
 Utilities:      INCLUDE "Utility/Utilities.asm"            ; Include Utility Functions
 
@@ -43,6 +49,7 @@ MathsHelpers:   INCLUDE "Divide/Divide8x8.asm"             ; Include Unified Div
                 INCLUDE "Multiply/Multiply16x8.asm"        ; Include Unified Multiply 16-bit routines
 
 DisplayUtils:   INCLUDE "Display/ScreenClearing.asm"       ; Include the Screen Clearing routines
+                INCLUDE "Display/Layer2Utility.asm"        ; Include Spec Next Layer 2 Utility routines
                 INCLUDE "Display/TextUtils.asm"            ; Include the Text Utils routines
                 INCLUDE "Display/EmbeddedFont.asm"         ; Include the Embedded Font
 

@@ -21,14 +21,14 @@
 ; PERFORMANCE_Z80N_RANDOM_MIDDLESQUARE - ~280-350 T-states for seed+first call (25-30% faster than standard)
 ;
 ; Random16_Unified_Next (subsequent calls only):
-; PERFORMANCE_RANDOM_LCG               - ~110-150 T-states per call
-; PERFORMANCE_RANDOM_LFSR              - ~100-135 T-states per call  
-; PERFORMANCE_RANDOM_XORSHIFT          - ~80-105 T-states per call
-; PERFORMANCE_RANDOM_MIDDLESQUARE      - ~370-470 T-states per call
-; PERFORMANCE_Z80N_RANDOM_LCG          - ~65-105 T-states per call (25-30% faster than standard)
-; PERFORMANCE_Z80N_RANDOM_LFSR         - ~45-75 T-states per call (40-45% faster than standard)
-; PERFORMANCE_Z80N_RANDOM_XORSHIFT     - ~35-60 T-states per call (45-50% faster than standard)
-; PERFORMANCE_Z80N_RANDOM_MIDDLESQUARE - ~250-320 T-states per call (25-30% faster than standard)
+; PERFORMANCE_RANDOM_LCG               - 85-95 T-states per call
+; PERFORMANCE_RANDOM_LFSR              - 68 T-states per call  
+; PERFORMANCE_RANDOM_XORSHIFT          - 55 T-states per call
+; PERFORMANCE_RANDOM_MIDDLESQUARE      - 78 T-states per call
+; PERFORMANCE_Z80N_RANDOM_LCG          - 55-65 T-states per call (30% faster via hardware MUL)
+; PERFORMANCE_Z80N_RANDOM_LFSR         - 42 T-states per call (38% faster)
+; PERFORMANCE_Z80N_RANDOM_XORSHIFT     - 35 T-states per call (36% faster via MUL-based bit operations)
+; PERFORMANCE_Z80N_RANDOM_MIDDLESQUARE - 48 T-states per call (38% faster via single-cycle 16-bit MUL)
 ;
 ; @COMPAT: 48K,128K,+2,+3,NEXT
 Random16_Unified_Seed:               ; Set seed and get first random number

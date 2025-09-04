@@ -1,9 +1,14 @@
 # NextLibrary - Z80 Assembly Utilities Library for Spectrum and Next
 
-[![Platform: ZX Spectrum Next](https://img.shields.io/badge/Platform-ZX%20Spectrum%20Next-blue.svg)](https://www.specnext.com/)
+[![Platform: ZX Spectrum 48K](https://img.shields.io/badge/Platform-ZX%20Spectrum%2048K-blue.svg)](https://en.wikipedia.org/wiki/ZX_Spectrum)
+[![Platform: ZX Spectrum 128K](https://img.shields.io/badge/Platform-ZX%20Spectrum%20128K-blue.svg)](https://en.wikipedia.org/wiki/ZX_Spectrum)
+[![Platform: ZX Spectrum +2](https://img.shields.io/badge/Platform-ZX%20Spectrum%20%2B2-blue.svg)](https://en.wikipedia.org/wiki/ZX_Spectrum)
+[![Platform: ZX Spectrum +3](https://img.shields.io/badge/Platform-ZX%20Spectrum%20%2B3-blue.svg)](https://en.wikipedia.org/wiki/ZX_Spectrum)
+[![Platform: ZX Spectrum Next](https://img.shields.io/badge/Platform-ZX%20Spectrum%20Next-purple.svg)](https://www.specnext.com/)
 [![Assembly: Z80](https://img.shields.io/badge/Assembly-Z80-green.svg)](https://en.wikipedia.org/wiki/Zilog_Z80)
 [![Assembly: Z80N](https://img.shields.io/badge/Assembly-Z80N-orange.svg)](https://wiki.specnext.dev/Z80N_Extended_Opcodes)
 [![DMA: Supported](https://img.shields.io/badge/DMA-Supported-red.svg)](https://wiki.specnext.dev/DMA)
+[![Layer 2: Supported](https://img.shields.io/badge/Layer%202-Supported-purple.svg)](https://wiki.specnext.dev/Layer_2)
 
 **A high-performance, utility library for Z80 assembly development on the ZX Spectrum and ZX Spectrum Next platforms. The choice is yours, you can use device independent routines or limit yourself to platform specific routines for a single target architecture.**
 
@@ -15,6 +20,28 @@ T-State tables in this document also allow for easy performance and requirement 
 
 ## Release History
 
+**v1.7** - Layer 2 Graphics Support and Enhanced Modularity
+
+Key improvements:
+- **62 Test Cases**: Expanded test suite from 59 to 62 comprehensive test cases including Layer 2 validation
+- **Layer 2 Graphics Support**: Complete Layer 2 utility functions for Next hardware graphics programming
+- **Layer 2 Screen Clearing**: Ultra-fast Layer 2 clearing using DMA with support for all resolutions (256×192, 320×256, 640×256)
+- **Layer 2 Detection**: Hardware detection for active Layer 2 with resolution and address retrieval
+- **Enhanced Modularity**: Split constants and variables into separate domain-specific files for easier partial library adoption
+- **Improved Developer Experience**: Cleaner file organization allowing developers to include only needed components
+- **Layer 2 Information Retrieval**: Complete Layer 2 configuration detection including resolution, color depth, and memory requirements
+- **Extended Graphics Pipeline**: Foundation for advanced Layer 2 graphics operations and double-buffering
+
+Layer 2 performance improvements:
+- **Layer 2 DMA Clearing**: Up to 99.8% faster Layer 2 screen clearing using DMA burst mode
+- **Resolution Detection**: Fast Layer 2 configuration retrieval (83-157 T-states)
+- **Memory Efficient**: Optimized Layer 2 operations with minimal CPU overhead
+- **Hardware Adaptive**: Automatic fallback to standard operations if Layer 2 unavailable
+
+File structure improvements:
+- **Modular Constants**: Separate files for Maths, Random, Display, and DMA constants
+- **Organized Variables**: Domain-specific variable files for cleaner partial library usage
+- **Developer Friendly**: Extract only needed components without dependency overhead
 **v1.6** - Enhanced Screen Management and DMA Support
 
 Key improvements:
@@ -146,6 +173,20 @@ The following platforms are targetted. The main entry points and individual func
   - **SCREEN_DMA_BURST**: DMA burst mode (260 T-states, 99.8% faster)
 - **Hardware Detection**: Automatic Z80N and DMA detection with graceful fallbacks
 
+### 🎨 **Layer 2 Graphics (Spectrum Next)**
+- **Layer 2 Detection**: Hardware detection and active Layer 2 identification
+  - CheckForActiveLayer2: Z80N and Layer 2 availability checking (109-157 T-states)
+  - GetActiveLayer2Addr: Active Layer 2 base address retrieval (83-87 T-states)
+  - GetLayer2FullInfo: Complete Layer 2 configuration detection (varies by resolution)
+- **Layer 2 Screen Clearing**: Ultra-fast Layer 2 clearing with DMA acceleration
+  - Support for all Layer 2 resolutions: 256×192 (48KB), 320×256 (80KB), 640×256 (160KB)
+  - DMA-optimized clearing with automatic chunking for 16-bit operations
+  - Hardware detection with graceful fallbacks to standard operations
+- **Layer 2 Information Retrieval**: Comprehensive Layer 2 status and configuration
+  - Resolution detection: 256×192, 320×256, 640×256 modes
+  - Color depth identification: 4bpp (16 colors) or 8bpp (256 colors)
+  - Memory requirements calculation and address management
+
 ### 🎲 **Random Number Generation**
 - **8-bit Random**: Eight different algorithms with standard Z80 and Z80N optimized versions
   - Standard Z80: LCG (~45-55 T-states), LFSR (~85-95 T-states), XorShift (~35-45 T-states), Middle Square (~115-150 T-states)
@@ -182,6 +223,35 @@ The following platforms are targetted. The main entry points and individual func
 | **SCREEN_ALLPUSH** | 35,844 T | 4,500 T | 40,344 T | All | 72% faster |
 | **SCREEN_DMA_FILL** | 280 T | 120 T | 400 T | Next | 99.7% faster |
 | **SCREEN_DMA_BURST** | 180 T | 80 T | 260 T | Next | 99.8% faster |
+
+### Layer 2 Utility T-States
+
+| Function | Scenario | T-States | Description |
+|----------|----------|----------|-------------|
+| **CheckForActiveLayer2** | Next Not Found | 109 | Z80N detection fails |
+| **CheckForActiveLayer2** | Layer 2 Inactive | 151 | Z80N found, Layer 2 disabled |
+| **CheckForActiveLayer2** | Layer 2 Active | 157 | Z80N found, Layer 2 enabled |
+| **GetActiveLayer2Addr** | No Layer 2 | 87 | Returns HL = 0 |
+| **GetActiveLayer2Addr** | Active Layer 2 | 83 | Returns Layer 2 base address |
+| **GetLayer2FullInfo** | Variable | 200-300+ | Complete configuration retrieval |
+
+### Layer 2 Constants
+
+```asm
+; Layer 2 Memory Requirements
+LAYER2_BYTES_256x192         EQU     $C000   ; 49,152 bytes (48KB) - 256×192 mode
+LAYER2_BYTES_320x256         EQU     $14000  ; 81,920 bytes (80KB) - 320×256 mode  
+LAYER2_BYTES_640x256         EQU     $28000  ; 163,840 bytes (160KB) - 640×256 mode
+LAYER2_BYTES_320x256_HALF    EQU     $A000   ; 40,960 bytes (40KB) - Half for 16-bit DMA
+
+; Layer 2 Resolutions
+LAYER2_RESOLUTION_256x192    EQU     0       ; Standard Layer 2 resolution
+LAYER2_RESOLUTION_320x256    EQU     1       ; Enhanced Layer 2 resolution
+LAYER2_RESOLUTION_640x256    EQU     2       ; Maximum Layer 2 resolution
+
+; Layer 2 Performance Levels
+SCREEN_LAYER2_DMA_FILL       EQU     9       ; Layer 2 DMA fill mode
+SCREEN_LAYER2_DMA_BURST      EQU     10      ; Layer 2 DMA burst mode
 
 ### Random Generation T-States
 
@@ -365,15 +435,10 @@ The Z80N optimized versions provide significant performance improvements:
 - Sprites (tags likely to be @COMPAT: NEXT, @REQUIRES: Next sprites)
 - Copper (tags likely to be @COMPAT: NEXT, @REQUIRES: Next copper)  
 - Enhanced DMA operations (pattern fills, memory copies, etc.)
-- Layer 2 integration and extended graphics modes
 - More features... (one thing added at a time)
 
 ### ⚡ **Optimization**
 - Complete T-state optimization pass (e.g., replace JR with JP where beneficial)
-- Add "Next Only" variants using Z80N extended opcodes for enhanced performance - Status: On Going.
-  - Next_FastMemCopy - @COMPAT: NEXT, @Z80N: LDPIRX, LDDX
-  - Next_RegisterAccess - @COMPAT: NEXT, @Z80N: NEXTREG
-  - Next_FastMultiply - @COMPAT: NEXT, @Z80N: MUL DE
 - Memory usage optimization analysis
 
 ## 🎯 **Performance Levels**
@@ -507,6 +572,40 @@ LD      C, SCREEN_ALLPUSH
 ClearScreen:
 LD      A, %00000111    ; Screen attribute
 LD      HL, 0           ; Default screen
+CALL    Screen_FullReset_Unified
+```
+
+### Layer 2 Graphics Examples
+
+```asm
+; Detect if Layer 2 is available and active
+CALL    CheckForActiveLayer2    ; Check Layer 2 availability
+JR      Z, NoLayer2            ; Jump if not available
+
+; Get Layer 2 configuration
+CALL    GetLayer2FullInfo      ; Get complete Layer 2 info
+; Layer2Resolution now contains: 0=256×192, 1=320×256, 2=640×256
+; Layer2Width/Height contain pixel dimensions
+; Layer2Bpp contains color depth (4 or 8 bits per pixel)
+
+; Clear Layer 2 screen with DMA acceleration
+LD      A, $FF                 ; Fill color (white in 8bpp mode)
+LD      C, SCREEN_LAYER2_DMA_BURST ; Maximum performance
+CALL    GetActiveLayer2Addr    ; Get Layer 2 address in HL
+CALL    Screen_Layer2Clear_Unified ; Clear Layer 2 screen
+
+; Double buffering example
+CALL    GetActiveLayer2Addr    ; Get current display buffer
+LD      (DisplayBuffer), HL    ; Store display buffer
+LD      HL, BackBuffer         ; Set back buffer address
+; ... render to back buffer ...
+; ... swap buffers when ready ...
+
+NoLayer2:
+; Fall back to standard ULA screen operations
+LD      HL, 0                  ; Use standard screen
+LD      A, $07                 ; White on black
+LD      C, SCREEN_DMA_BURST    ; Use DMA if available
 CALL    Screen_FullReset_Unified
 ```
 
@@ -825,7 +924,7 @@ ZXN_DMA_PORT              EQU $6B    ; Next DMA port
 
 NextLibrary includes comprehensive test suites:
 
-- **59 Test Cases** continually being expanded to cover more functionality
+- **62 Test Cases** continually being expanded to cover more functionality
 - **Algorithm Validation** for all random number generators (8-bit and 16-bit)
 - **Performance Verification** across all performance levels
 - **Edge Case Testing** for boundary conditions
@@ -878,25 +977,30 @@ NextLibrary is designed with a clear, modular structure that allows developers t
 
 This modular approach ensures you can integrate specific functionality into your projects without including the entire library.
 
+
 ## 📁 **Project Structure**
 
 ```
 NextLibrary/
 ├── Source/
-│   ├── NextLibrary.asm      # Main library file
-│   ├── Constants.asm        # System constants
-│   ├── Variables.asm        # Variable definitions
-│   ├── Multiply/           # Multiplication routines
-│   ├── Divide/             # Division routines  
-│   ├── Random/             # Random number generation
-│   ├── Display/            # Screen and text utilities
-│   ├── DMA/                # DMA support routines
-│   ├── Utility/            # Hardware detection utilities
-│   ├── Input/              # Input handling
-│   ├── Scoring/            # Score management
-│   └── Testing/            # Test suites
-├── Todo/                   # Development planning
-│   └── screenoptimisations.txt # Screen optimization roadmap
+│   ├── Display/                # Screen, Layer 2, and text utilities
+│   ├── Divide/                 # Division routines  
+│   ├── DMA/                    # DMA support routines
+│   ├── Input/                  # Input handling routines
+│   ├── Multiply/               # Multiplication routines
+│   ├── Random/                 # Random number generation
+│   ├── Scoring/                # Score management
+│   ├── Testing/                # Test suites
+│   ├── Utility/                # Hardware detection utilities
+│   ├── ConstantsDisplay.asm    # Display and graphics constants
+│   ├── ConstantsDMA.asm        # DMA operation constants
+│   ├── ConstantsMaths.asm      # Mathematical constants
+│   ├── ConstantsRandom.asm     # Random generation constants 
+│   ├── NextLibrary.asm         # Main library file
+│   ├── Variables.asm           # Global ariables
+│   ├── VariablesDisplay.asm    # Display-specific variables
+│   ├── VariablesDMA.asm        # DMA operation variables
+│   └── VariablesRandom.asm     # Random Generator variables
 ├── Output/
 │   └── nextlibrary.nex     # Compiled library
 └── README.md              # This file
