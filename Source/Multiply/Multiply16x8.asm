@@ -14,6 +14,8 @@
 ; PERFORMANCE_NEXT_BALANCED: ~97 T-states (Z80N optimised, using MUL DE instruction)
 ; PERFORMANCE_NEXT_MAXIMUM: ~97 T-states (Z80N optimised, using MUL DE instruction)
 ;
+; Performance Improvement: Up to 75% faster on Spectrum Next
+;
 ; @COMPAT: 48K,128K,+2,+3,NEXT for first 3 choices, NEXT for last 3 choices
 
 Multiply16x8_Unified:   LD      A, C                    ; Get Performance Level

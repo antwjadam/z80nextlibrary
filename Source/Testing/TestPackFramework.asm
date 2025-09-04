@@ -1,7 +1,7 @@
 RunTests:           CALL    TestPackTests
                     ; A register now contains result:
                     ; 0xFF = all passed
-                    ; 1-17 = test number that failed
+                    ; 1-62 = test number that failed
                     RET
 AllTestsPassed:     ; Print success message at bottom
                     LD      B, 20           ; Row 20

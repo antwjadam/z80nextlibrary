@@ -15,10 +15,10 @@ CheckOnZ80N:            ; Test for Z80N architecture by attempting a MUL DE inst
                         MUL     DE          ; Z80N will put 6 in DE, Z80 will treat as two NOPs leaving DE unchanged.
                         LD      A, D
                         OR      A           ; Set Z flag if D is 0 (Z80N), else NZ if D is 2 (Z80)
-                        JR      NZ, FoundZ80
+                        JP      NZ, FoundZ80
                         LD      A, E
                         CP      6
-                        JR      Z, FoundZ80N
+                        JP      Z, FoundZ80N
 FoundZ80:               XOR     A           ; Set A to zero for Z80N not found flag setting.
                         OR      A           ; Set Flag Z to indicate not Z80N
                         RET

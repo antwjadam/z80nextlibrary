@@ -14,6 +14,8 @@
 ; PERFORMANCE_NEXT_BALANCED: ~175 T-states (8-bit reciprocals - fixed timing using precomputed table, minor accuracy trade-offs)
 ; PERFORMANCE_NEXT_MAXIMUM: ~218 T-states (16-bit reciprocals - high precision using Z80N MUL instructions)
 ;
+; Performance Improvement: Up to 95% faster on Spectrum Next
+;
 ; @COMPAT: 48K,128K,+2,+3,NEXT
 
 Divide8x8_Unified:      LD      D, A                        ; Save dividend in D so we can check performance levels
