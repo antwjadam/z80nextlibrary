@@ -11,7 +11,7 @@ SCREEN_2PUSH                            EQU     2       ; Sets 4 pixels simultan
 SCREEN_4PUSH                            EQU     3       ; Sets 8 pixels simultaneously, even faster but slightly larger code overhead.
 SCREEN_8PUSH                            EQU     4       ; Sets 16 pixels simultaneously, fastest but largest code overhead with loops.
 SCREEN_ALLPUSH                          EQU     5       ; Sets all 2,048 pixels (256 bytes) simultaneously, maximum speed but very large code overhead.
-SCREEN_Z80N_COMPACT                     EQU     6       ; Standard LDIR operation, slowest but most compact code - Next only compatible choice.
+SCREEN_Z80N_COMPACT                     EQU     6       ; Z80N LDIRX operation, slow but most compact code - Next only.
 SCREEN_DMA_FILL                         EQU     7       ; Uses Spectrum Next DMA to fill screen, hardware fast speed but requires Spectrum Next with DMA architecture.
 SCREEN_DMA_BURST                        EQU     8       ; Uses Spectrum Next DMA Burst mode to fill screen, maximum speed but requires Spectrum Next with DMA architecture.
 SCREEN_LAYER2_MANUAL_256by192           EQU     9       ; Uses manual Layer 2 address in HL and LDIRX to fill Layer 2 256x192 mode to colour defined by attribute parameter.
@@ -22,6 +22,17 @@ SCREEN_LAYER2_MANUAL_DMA_320by256       EQU     13      ; Uses manual Layer 2 ad
 SCREEN_LAYER2_MANUAL_DMA_640by256       EQU     14      ; Uses manual Layer 2 address in HL and DMA to fill Layer 2 640x256 mode to colour defined by attribute parameter.
 SCREEN_LAYER2_AUTO_ACTIVE               EQU     15      ; Uses automatic Layer 2 address and resolution detection and LDIRX to the colour defined by attribute parameter.
 SCREEN_LAYER2_AUTO_DMA                  EQU     16      ; Uses automatic Layer 2 address and resolution detection and DMA BURST to the colour defined by attribute parameter.
+
+; Screen copying performance choices
+SCREEN_COPY_COMPACT                     EQU     0       ; Standard LDIR operation, slowest but most compact code.
+SCREEN_COPY_1PUSH                       EQU     1       ; Pops 2 pixels from source simultaneously, slightly slower but gets the pattern proven.
+SCREEN_COPY_2PUSH                       EQU     2       ; Pops 4 pixels from source simultaneously cutting loop iterations in half
+SCREEN_COPY_4PUSH                       EQU     3       ; Pops 8 pixels from source simultaneously cutting loop iterations in half again.
+SCREEN_COPY_8PUSH                       EQU     4       ; Pops 16 pixels from source simultaneously cutting loop iterations in half again, fastest but largest code overhead.
+SCREEN_COPY_ALLPUSH                     EQU     5       ; Eliminates the inner loop, on a ZX Spectrum device provides maximum speed at the cost of a large code overhead.
+SCREEN_COPY_Z80N_COMPACT                EQU     6       ; Z80N LDIRX operation, slow but most compact code - Next only.
+SCREEN_COPY_DMA_FILL                    EQU     7       ; Uses Spectrum Next DMA to copy screen, hardware fast speed but requires Spectrum Next with DMA architecture.
+SCREEN_COPY_DMA_BURST                   EQU     8       ; Uses Spectrum Next DMA Burst mode to copy screen, maximum speed but requires Spectrum Next with DMA architecture.
 
 ; Next only Layer 2 Display Constants
 LAYER2_REGISTER_DATA_PORT               EQU     $243B   ; Next register data port for Layer 2

@@ -49,6 +49,7 @@ MathsHelpers:   INCLUDE "Divide/Divide8x8.asm"             ; Include Unified Div
                 INCLUDE "Multiply/Multiply16x8.asm"        ; Include Unified Multiply 16-bit routines
 
 DisplayUtils:   INCLUDE "Display/ScreenClearing.asm"       ; Include the Screen Clearing routines
+                INCLUDE "Display/ScreenCopying.asm"        ; Include the Screen Copying routines
                 INCLUDE "Display/Layer2Utility.asm"        ; Include Spec Next Layer 2 Utility routines
                 INCLUDE "Display/TextUtils.asm"            ; Include the Text Utils routines
                 INCLUDE "Display/EmbeddedFont.asm"         ; Include the Embedded Font

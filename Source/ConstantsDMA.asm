@@ -2,9 +2,12 @@
 DMA_BURST_CONTROL                       EQU     0x18
 DMA_BURST_LOAD                          EQU     0xDF
 DMA_BURSTMODE                           EQU     0xFF
+DMA_BURST_COPY_CONTROL                  EQU     0xAD
 DMA_BURST_TRANSFER                      EQU     0x7F
 DMA_FUNCTION_CONTROL                    EQU     0x14
+DMA_COPY                                EQU     0x8D
 DMA_FILL                                EQU     0x79
 DMA_LOAD                                EQU     0xCF
 DMA_RESET                               EQU     0xC3
 ZXN_DMA_PORT                            EQU     0x6B
+
