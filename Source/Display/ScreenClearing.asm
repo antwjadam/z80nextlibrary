@@ -651,22 +651,18 @@ SetLayer2ManualDMA640by256: LD      A, (CurrentAttr)                ; For Layer 
 SetLayer2AutoActive:        CALL    GetLayer2Info                  ; Get current Layer 2 info and store in variables
                             LD      HL, (Layer2ScreenAddress)      ; Get Active Layer 2 screen address
                             LD      A, (Layer2Resolution)          ; Check resolution mode
-                            CP      0
-                            JP      Z, SetLayer2Manual256by192
-                            CP      1
-                            JP      Z, SetLayer2Manual320by256
                             CP      2
                             JP      Z, SetLayer2Manual640by256
-                            RET                                     ; No active Layer 2 or unknown mode, just return.
+                            CP      1
+                            JP      Z, SetLayer2Manual320by256
+                            JP      SetLayer2Manual256by192
 ; @COMPAT: NEXT
 ; @REQUIRES: Spectrum Next, Z80N architecture.
 SetLayer2AutoDMA:           CALL    GetLayer2Info                  ; Get current Layer 2 info and store in variables
                             LD      HL, (Layer2ScreenAddress)      ; Get Active Layer 2 screen address
                             LD      A, (Layer2Resolution)          ; Check resolution mode
-                            CP      0
-                            JP      Z, SetLayer2ManualDMA256by192
-                            CP      1
-                            JP      Z, SetLayer2ManualDMA320by256
                             CP      2
                             JP      Z, SetLayer2ManualDMA640by256
-                            RET                                     ; No active Layer 2 or unknown mode, just return.
+                            CP      1
+                            JP      Z, SetLayer2ManualDMA320by256
+                            JP      SetLayer2ManualDMA256by192

@@ -26,6 +26,24 @@
 ; SCREEN_COPY_DMA_FILL: DMA memory fill operation - Pixel Only ~300 T-States, Attribute Only ~300 T-States, Full Copy ~300 T-States, 99.8% faster than COMPACT LDIR variants
 ; SCREEN_COPY_DMA_BURST: DMA burst fill operation - Pixel Only ~270 T-States, Attribute Only ~270 T-States, Full Copy ~270 T-States, 99.8% faster than COMPACT LDIR variants
 ;
+; Next Only Layer 2 options T-States:
+; SCREEN_COPY_LAYER2_MANUAL_256by192: LDIRX       - Next Only - Full Copy only for Layer 2 takes ~78,663 T-States (44.4 FPS at 3.5MHz)
+; SCREEN_COPY_LAYER2_MANUAL_320by256: LDIRX       - Next Only - Full Copy only for Layer 2 takes ~131,112 T-States (26.7 FPS at 3.5MHz)
+; SCREEN_COPY_LAYER2_MANUAL_640by256: LDIRX       - Next Only - Full Copy only for Layer 2 takes ~262,224 T-States (13.3 FPS at 3.5MHz)
+; SCREEN_COPY_LAYER2_MANUAL_DMA_256by192: BURST   - Next Only - Full Copy only for Layer 2 takes ~260 T-States (13,500+ FPS at 3.5MHz)
+; SCREEN_COPY_LAYER2_MANUAL_DMA_320by256: BURST   - Next Only - Full Copy only for Layer 2 takes ~350 T-States (10,000+ FPS at 3.5MHz)
+; SCREEN_COPY_LAYER2_MANUAL_DMA_640by256: BURST   - Next Only - Full Copy only for Layer 2 takes ~600 T-States (5,800+ FPS at 3.5MHz)
+; SCREEN_COPY_LAYER2_AUTO_ACTIVE: LDIRX           - Next Only - Full Copy. Variable by resolution: 256×192 (~78,763 T-states), 320×256 (~131,212 T-states), 640×256 (~262,324 T-states)
+; SCREEN_COPY_LAYER2_AUTO_DMA: DMA BURST          - Next Only - Full Copy. Variable by resolution: 256×192 (~360 T-states), 320×256 (~450 T-states), 640×256 (~700 T-states)
+;
+; These options assume Layer 2 is already enabled and set up, and the screen mode is already set. It replicates the base copying operation for Layer 2 screen modes but
+; much faster double buffering is possibe by simply "activating" the off screen bugffer so that the current active display becomes the off-screen buffer. The next call and all drawing then
+; should target the current off screen buffer. These first choices mimic the copy from off screen to active screen layer 2 memory. Also note that layer 2 has no attributes, so we only
+; use the Screen_FullCopy_Unified entry point for layer 2 options. 
+;
+; TODO: SCREEN_COPY_DOUBLE_BUFFER_PLUS_3                - Spectrum Plus 3 specific double buffering option 
+; TODO: SCREEN_COPY_LAYER2_DOUBLE_BUFFER_BANK           - Next Only - Use ZX Spectrum Next Registers to change the current active layer 2 display bank.
+;
 ; Platform notes regarding double buffering and screen copying operations:
 ;
 ; ZX Spectrum specific notes: (3.5MHz CPU speed)
@@ -52,8 +70,7 @@
 ; 14MHz:  50,000+ FPS maximum (0.001 frames per copy)   - Practically unlimited frame rate  
 ; 28MHz:  100,000+ FPS maximum (0.0005 frames per copy) - Practically unlimited frame rate  
 ;
-; Note that we can use hardware double buffering on the Next, using bank switching to swap the display memory bank with an off-screen buffer bank,
-; or by using hardware address switching, or Layer 2 hardware double buffering in Layer 2 screen modes.
+; Note that we can use hardware double buffering on the Next, using bank switching to swap the display memory.
 ;
 ; @COMPAT: 48K,128K,+2,+3,NEXT
 Screen_FullCopy_Unified:    ; If DE is 0, default to ZX Spectrum screen base address as the destination address
@@ -88,6 +105,22 @@ FullCopyCustomDestination:  ; Calculate stack pointer to end of source attribute
                             JP      Z, FullCopyScreen_DMA_FILL
                             CP      SCREEN_COPY_DMA_BURST
                             JP      Z, FullCopyScreen_DMA_BURST
+                            CP      SCREEN_COPY_LAYER2_MANUAL_256by192
+                            JP      Z, FullCopyScreen_LAYER2_MANUAL_256by192
+                            CP      SCREEN_COPY_LAYER2_MANUAL_320by256
+                            JP      Z, FullCopyScreen_LAYER2_MANUAL_320by256
+                            CP      SCREEN_COPY_LAYER2_MANUAL_640by256
+                            JP      Z, FullCopyScreen_LAYER2_MANUAL_640by256
+                            CP      SCREEN_COPY_LAYER2_MANUAL_DMA_256by192
+                            JP      Z, FullCopyScreen_LAYER2_MANUAL_DMA_256by192
+                            CP      SCREEN_COPY_LAYER2_MANUAL_DMA_320by256
+                            JP      Z, FullCopyScreen_LAYER2_MANUAL_DMA_320by256
+                            CP      SCREEN_COPY_LAYER2_MANUAL_DMA_640by256
+                            JP      Z, FullCopyScreen_LAYER2_MANUAL_DMA_640by256
+                            CP      SCREEN_COPY_LAYER2_AUTO_ACTIVE
+                            JP      Z, FullCopyScreen_LAYER2_AUTO_ACTIVE
+                            CP      SCREEN_COPY_LAYER2_AUTO_DMA
+                            JP      Z, FullCopyScreen_LAYER2_AUTO_DMA
 
                             ; TODO: Add Layer 2 and Hardware Double Buffering options here
 
@@ -1116,3 +1149,103 @@ AttrCopyScreen_ALLPUSH:     LD      (ScreenStackPointer), SP        ; Save curre
                             LD      B, 3                            ; 3 × 256 = 768 bytes / 2
                             ; The rest of this routine is identical to FullCopy_ALLPUSH from FullCopy_AllPop_Loop so we can reuse it - both use the same C loop count.
                             JP      FullCopy_AllPop_Loop
+;
+; @COMPAT: NEXT
+; @REQUIRES: Spectrum Next with Layer 2 architecture.
+FullCopyScreen_LAYER2_MANUAL_256by192:
+                            LD      BC, LAYER2_BYTES_256by192       ; 256x192 Layer 2 size (49152 bytes)
+                            LDIRX                                   ; Copy using Z80N extended op code
+                            RET
+;
+; @COMPAT: NEXT
+; @REQUIRES: Spectrum Next with Layer 2 architecture.
+FullCopyScreen_LAYER2_MANUAL_320by256:
+                            ; First half: 40KB - this is done as total bytes is larger than 64k, so needs to be split into two LDIRX operations
+                            LD      BC, LAYER2_BYTES_320by256_HALF  ; 40KB
+                            LDIRX
+                            ; Second half: 40KB
+                            LD      BC, LAYER2_BYTES_320by256_HALF  ; 40KB
+                            LDIRX
+                            RET
+;
+; @COMPAT: NEXT
+; @REQUIRES: Spectrum Next with Layer 2 architecture.
+FullCopyScreen_LAYER2_MANUAL_640by256:
+                            ; First quarter: 40KB - this is done as total bytes is larger than 64k, so needs to be split into four LDIRX operations
+                            LD      BC, LAYER2_BYTES_640by256_QTR   ; 40KB
+                            LDIRX
+                            ; Second quarter: 40KB
+                            LD      BC, LAYER2_BYTES_640by256_QTR   ; 40KB
+                            LDIRX
+                            ; Third quarter: 40KB
+                            LD      BC, LAYER2_BYTES_640by256_QTR   ; 40KB
+                            LDIRX
+                            ; Fourth quarter: 40KB
+                            LD      BC, LAYER2_BYTES_640by256_QTR   ; 40KB
+                            LDIRX
+                            RET
+;
+; @COMPAT: NEXT
+; @REQUIRES: Spectrum Next with DMA and Layer 2 architecture.
+FullCopyScreen_LAYER2_MANUAL_DMA_256by192:
+                            LD      BC, LAYER2_BYTES_256by192       ; 256x192 Layer 2 size (49152 bytes)
+                            JP      DMA_MemoryCopy_Burst            ; Use DMA burst for maximum speed
+;
+; @COMPAT: NEXT
+; @REQUIRES: Spectrum Next with DMA and Layer 2 architecture.
+FullCopyScreen_LAYER2_MANUAL_DMA_320by256:
+                            ; First half: 40KB via DMA
+                            LD      BC, LAYER2_BYTES_320by256_HALF  ; 40KB
+                            CALL    DMA_MemoryCopy_Burst
+                            ; Second half: 40KB via DMA
+                            LD      BC, LAYER2_BYTES_320by256_HALF  ; 40KB
+                            JP      DMA_MemoryCopy_Burst
+;
+; @COMPAT: NEXT
+; @REQUIRES: Spectrum Next with DMA and Layer 2 architecture.
+FullCopyScreen_LAYER2_MANUAL_DMA_640by256:
+                            ; First quarter: 40KB via DMA
+                            LD      BC, LAYER2_BYTES_640by256_QTR   ; 40KB
+                            CALL    DMA_MemoryCopy_Burst
+                            ; Second quarter
+                            LD      BC, LAYER2_BYTES_640by256_QTR   ; 40KB
+                            CALL    DMA_MemoryCopy_Burst
+                            ; Third quarter
+                            LD      BC, LAYER2_BYTES_640by256_QTR   ; 40KB
+                            CALL    DMA_MemoryCopy_Burst
+                            ; Fourth quarter
+                            LD      BC, LAYER2_BYTES_640by256_QTR   ; 40KB
+                            JP      DMA_MemoryCopy_Burst
+;
+; @COMPAT: NEXT
+; @REQUIRES: Spectrum Next with Layer 2 architecture.
+FullCopyScreen_LAYER2_AUTO_ACTIVE:
+                            PUSH    HL                              ; Save source address
+                            CALL    GetLayer2Info                   ; Get current Layer 2 configuration
+                            LD      HL, (Layer2ScreenAddress)       ; Get Active Layer 2 screen address
+                            EX      DE, HL                          ; DE = destination address (active layer 2 screen)
+                            POP     HL                              ; Restore source address (off screen layer 2 buffer address)
+                            ; A = mode (0=256x192, 1=320x256, 2=640x256)
+                            LD      A, (Layer2Resolution)           ; Check resolution mode
+                            CP      2
+                            JP      Z, FullCopyScreen_LAYER2_MANUAL_640by256
+                            CP      1
+                            JP      Z, FullCopyScreen_LAYER2_MANUAL_320by256
+                            JP      FullCopyScreen_LAYER2_MANUAL_256by192
+
+;
+; @COMPAT: NEXT
+; @REQUIRES: Spectrum Next with DMA and Layer 2 architecture.
+FullCopyScreen_LAYER2_AUTO_DMA:
+                            PUSH    HL                              ; Save source address
+                            CALL    GetLayer2Info                   ; Get current Layer 2 configuration
+                            LD      HL, (Layer2ScreenAddress)       ; Get Active Layer 2 screen address
+                            EX      DE, HL                          ; DE = destination address (active layer 2 screen)
+                            POP     HL                              ; Restore source address (off screen layer 2 buffer address)
+                            ; A = mode (0=256x192, 1=320x256, 2=640x256)
+                            LD      A, (Layer2Resolution)           ; Check resolution mode
+                            CP      2
+                            JP      Z, FullCopyScreen_LAYER2_MANUAL_DMA_640by256
+                            CP      1
+                            JP      Z, FullCopyScreen_LAYER2_MANUAL_DMA_320by256
+                            JP      FullCopyScreen_LAYER2_MANUAL_DMA_256by192
