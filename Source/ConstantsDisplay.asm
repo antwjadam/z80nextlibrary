@@ -33,6 +33,14 @@ SCREEN_COPY_ALLPUSH                     EQU     5       ; Eliminates the inner l
 SCREEN_COPY_Z80N_COMPACT                EQU     6       ; Z80N LDIRX operation, slow but most compact code - Next only.
 SCREEN_COPY_DMA_FILL                    EQU     7       ; Uses Spectrum Next DMA to copy screen, hardware fast speed but requires Spectrum Next with DMA architecture.
 SCREEN_COPY_DMA_BURST                   EQU     8       ; Uses Spectrum Next DMA Burst mode to copy screen, maximum speed but requires Spectrum Next with DMA architecture.
+SCREEN_COPY_LAYER2_MANUAL_256by192      EQU     9       ; Z80N LDIRX operation for Layer 2 256 x 192 resolutions, HL is the source buffer address, DE is the active layer 2 target address.
+SCREEN_COPY_LAYER2_MANUAL_320by256      EQU     10      ; Z80N LDIRX operation for Layer 2 320 x 256 resolutions, HL is the source buffer address, DE is the active layer 2 target address.
+SCREEN_COPY_LAYER2_MANUAL_640by256      EQU     11      ; Z80N LDIRX operation for Layer 2 640 x 256 resolutions, HL is the source buffer address, DE is the active layer 2 target address.
+SCREEN_COPY_LAYER2_MANUAL_DMA_256by192  EQU     12      ; Uses Hardware DMA to accelerate the copy, HL is the source buffer address, DE is the active layer 2 target address.
+SCREEN_COPY_LAYER2_MANUAL_DMA_320by256  EQU     13      ; Uses Hardware DMA to accelerate the copy, HL is the source buffer address, DE is the active layer 2 target address.
+SCREEN_COPY_LAYER2_MANUAL_DMA_640by256  EQU     14      ; Uses Hardware DMA to accelerate the copy, HL is the source buffer address, DE is the active layer 2 target address.
+SCREEN_COPY_LAYER2_AUTO_ACTIVE          EQU     15      ; Uses automatic Layer 2 active address detection, is given the source buffer address and uses LDIRX to perform the layer 2 copy.
+SCREEN_COPY_LAYER2_AUTO_DMA             EQU     16      ; Uses automatic Layer 2 active address detection, is given the source buffer address and uses Hardware DMA to perform the layer 2 copy
 
 ; Next only Layer 2 Display Constants
 LAYER2_REGISTER_DATA_PORT               EQU     $243B   ; Next register data port for Layer 2
