@@ -41,8 +41,19 @@
 ; should target the current off screen buffer. These first choices mimic the copy from off screen to active screen layer 2 memory. Also note that layer 2 has no attributes, so we only
 ; use the Screen_FullCopy_Unified entry point for layer 2 options. 
 ;
-; TODO: SCREEN_COPY_DOUBLE_BUFFER_PLUS_3                - Spectrum Plus 3 specific double buffering option 
-; TODO: SCREEN_COPY_LAYER2_DOUBLE_BUFFER_BANK           - Next Only - Use ZX Spectrum Next Registers to change the current active layer 2 display bank.
+; Plus3 Double Buffering Support T-States:
+; PLUS3_SETUP_DOUBLE_BUFFER                  ; +3 and Next Only - ~200 T-states + screen clearing time
+; PLUS3_SET_OFFSCREEN_BUFFER                 ; +3 and Next Only - ~45 T-states (ensures correct banking state)
+; PLUS3_DOUBLE_BUFFER_TOGGLE                 ; +3 and Next Only - ~95 T-states (includes HALT + banking operations)
+;
+; Added Plus 3 double buffering support - this simply switches the current visible bank to the other bank, so no copying is required, just a bank switch. This is very fast.
+; These are called directly rather than through the Screen_FullCopy_Unified entry point as they do no copying, just a bank switch.
+;
+; CALL PLUS3_SETUP_DOUBLE_BUFFER                  ; to set up Plus 3 double buffering (call once at start of program)
+; CALL PLUS3_SET_OFFSCREEN_BUFFER                 ; to get the current off-screen buffer address and ensure the correct bank is at $C000 for drawing before any drawing/clearing etc are performed.
+; CALL PLUS3_DOUBLE_BUFFER_TOGGLE                 ; to toggle between the two screen banks (5 and 7)
+;
+; TODO: - Next Only - Use ZX Spectrum Next Registers to change the current active display banks.
 ;
 ; Platform notes regarding double buffering and screen copying operations:
 ;
@@ -1249,3 +1260,115 @@ FullCopyScreen_LAYER2_AUTO_DMA:
                             CP      1
                             JP      Z, FullCopyScreen_LAYER2_MANUAL_DMA_320by256
                             JP      FullCopyScreen_LAYER2_MANUAL_DMA_256by192
+;
+; Toggle between screen banks at $4000 and $C000 for double buffering support on +3 and Next
+;
+; The Spectrum +3 has 128K RAM, divided into eight 16K banks (Bank 0 to Bank 7). The memory map is:
+;
+; $0000–$3FFF: ROM (or RAM Bank 0/1 if paging)
+; $4000–$7FFF: Always paged RAM (Bank 5 by default)
+; $8000–$BFFF: Fixed RAM (Bank 2)
+; $C000–$FFFF: Paged RAM via port $7FFD
+;
+; to allow ease of writing to the off screen buffer, we set up the memory banks as follows:
+;
+; Default state: Bank 5 at $4000 (visible screen)
+; Bank 7 at $C000 (off-screen buffer)
+;
+; Port $7FFD bit layout:
+; Bit 0-2: RAM bank (0-7) at $C000-$FFFF  
+; Bit 3: Screen select (0=Bank 5, 1=Bank 7) <- This is what we toggle
+; Bit 4: ROM select
+; Bit 5: Disable paging
+;
+; Memory layout we want:
+; $4000-$7FFF: Current visible screen (Bank 5 or 7)
+; $C000-$FFFF: Off-screen buffer (Bank 7 or 5) 
+;;
+; When drawing to off-screen: Bank 7 at $4000 (off-screen buffer)
+; After drawing is complete: switch visible screen to Bank 7 at $4000 (visible screen), and Bank 5 at $C000 (off-screen buffer)
+; Then we can safely draw to Bank 5 at $4000 (off-screen buffer)
+; After drawing is complete: switch visible screen to Bank 5 at $4000 (visible screen), and Bank 7 at $C000 (off-screen buffer)
+; Rinse and repeat...
+;
+; @COMPAT: +3,NEXT
+; @REQUIRES: +3 or Next with 128K paging, and interrupts must be enabled to allow HALT to work.
+
+PLUS3_DOUBLE_BUFFER_TOGGLE: HALT                                    ; Wait for next frame (HALT until interrupt) to avoid tearing
+                            ; Read current bank from variable and switch to the other bank
+                            LD      BC, $7FFD                       ; Paging port
+                            LD      A, (Dbl_Buffer_Current_Bank)
+                            XOR     %00001000                       ; Toggle bit 3 (screen display)
+                            OUT     (C), A                          ; Switch displayed screen
+                            ; Now set up off-screen bank at $C000 for drawing ( we always draw to $C000)
+                            BIT     3, A                            ; Check which screen is visible
+                            JR      Z, SetBank7AtC000               ; If Bank 5 visible, put Bank 7 at $C000
+                            ; Bank 7 is visible, put Bank 5 at $C000 for drawing
+SetBank5AtC000:             AND     %11111000                       ; Clear bits 0-2 (bank selection bits) - keep screen display bit 3
+                            OR      %00000101                       ; Bank 5 at $C000
+                            LD      (Dbl_Buffer_Current_Bank), A    ; Save new state
+                            OUT     (C), A
+                            RET
+SetBank7AtC000:             AND     %11111000                       ; Clear bits 0-2 (bank selection bits) - keep screen display bit 3
+                            OR      %00000111                       ; Bank 7 at $C000
+                            LD      (Dbl_Buffer_Current_Bank), A    ; Save new state
+                            OUT     (C), A
+                            RET
+;
+; This small routines are needed for to set up Bank 7 at $C000 as the off-screen buffer at the start of the program, only need to call this once.
+;
+; @COMPAT: +3,NEXT
+; @REQUIRES: +3 or Next with 128K paging
+PLUS3_SETUP_DOUBLE_BUFFER:  LD      BC, $7FFD                       ; Paging port
+                            LD      A, %00000111                    ; Bank 7 at $C000, Bank 5 screen visible
+                            OUT     (C), A
+                            LD      (Dbl_Buffer_Current_Bank), A    ; Save current state
+                            ; Clear visible screen (Bank 5 at $4000)
+                            LD      HL, $4000                       ; Visible screen
+                            LD      A, $00                          ; Clear value - pixels unset, attributes black on black - change to pixel and attribute call if needed.
+                            LD      C, SCREEN_8PUSH                 ; Performance level
+                            CALL    Screen_FullReset_Unified
+                            ; Clear off-screen buffer (Bank 7 at $C000)
+                            LD      HL, $C000                       ; Off-screen buffer
+                            LD      A, $00                          ; Clear value - pixels unset, attributes black on black - change to pixel and attribute call if needed.
+                            LD      C, SCREEN_8PUSH                 ; Performance level
+                            JP      Screen_FullReset_Unified
+;
+; Get current off-screen buffer address for drawing. Always call this to ensure the correct bank is set at $C000 for drawing before any drawing/clearing etc are performed.
+; Only call once at the start of your drawing loop to set up the off-screen buffer, as it is assumed that you will be drawing to $C000 until the next toggle call.
+;
+; Output, HL = address of off screen buffer (always $C000 as bank 5 and 7 swap places with toggle routine and this call), A = bank number (5 or 7 for reference)
+;
+; @COMPAT: +3,NEXT
+; @REQUIRES: +3 or Next with 128K paging
+; @OUTPUT: HL = address of off-screen buffer ($C000)
+; @OUTPUT: A = bank number of off-screen buffer (5 or 7)
+PLUS3_SET_OFFSCREEN_BUFFER: LD      A, (Dbl_Buffer_Current_Bank)
+                            BIT     3, A                            ; Check which screen is visible
+                            JR      Z, OffScreenIsBank7             ; If Bank 5 visible, off-screen is Bank 7 at $C000
+                            AND     $07                             ; Mask out other bits, keep bits 0-2 (bank selection bits)
+                            CP      5
+                            JP      Z, Bank5Already                 ; If already Bank 5 at $C000, just return expected values.
+                            ; Bank 7 visible, need Bank 5 at $C000 for drawing
+                            LD      A, (Dbl_Buffer_Current_Bank)
+                            AND     %11111000                       ; Clear bits 0-2 (bank selection bits) - keep screen display bit 3
+                            OR      %00000101                       ; Bank 5 at $C000
+                            LD      BC, $7FFD
+                            OUT     (C), A
+                            LD      (Dbl_Buffer_Current_Bank), A    ; Save state
+Bank5Already:               LD      HL, $C000                       ; Off-screen buffer address
+                            LD      A, 5                            ; Bank number
+                            RET
+OffScreenIsBank7:           ; Bank 5 visible, Bank 7 should be at $C000
+                            LD      A, (Dbl_Buffer_Current_Bank)
+                            AND     $07                             ; Mask out other bits, keep bits 0-2 (bank selection bits)
+                            CP      7
+                            JP      Z, Bank7Already                 ; If already Bank 7 at $C000, just return expected values.
+                            LD      A, (Dbl_Buffer_Current_Bank)
+                            AND     %11111000                       ; Clear bits 0-2 (bank selection bits)
+                            OR      %00000111                       ; Bank 7 at $C000
+                            LD      BC, $7FFD
+                            OUT     (C), A
+Bank7Already:               LD      HL, $C000                       ; Off-screen buffer address
+                            LD      A, 7                            ; Bank number
+                            RET

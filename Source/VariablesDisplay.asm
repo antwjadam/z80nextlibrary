@@ -15,3 +15,6 @@ Layer2Resolution:           DB      1               ; Storage for current Layer 
 Layer2Width:                DS      2               ; Storage for current Layer 2 width in pixels
 Layer2Height:               DS      2               ; Storage for current Layer 2 height in pixels
 Layer2Bpp:                  DB      8               ; Storage for current Layer 2 bits per pixel mode - 8 (256 color mode) or 4 (128 color mode)
+
+; Double buffering support
+Dbl_Buffer_Current_Bank:    DB      5               ; Current visible bank (0-7), value assumes Banks 5 and 7 are mapped to $4000
